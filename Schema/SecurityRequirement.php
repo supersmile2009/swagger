@@ -2,6 +2,7 @@
 
 namespace Draw\Swagger\Schema;
 
+use Draw\Swagger\Schema\Traits\ArrayAccess;
 use JMS\Serializer\JsonDeserializationVisitor;
 use JMS\Serializer\JsonSerializationVisitor;
 use JMS\Serializer\Annotation as JMS;
@@ -9,8 +10,10 @@ use JMS\Serializer\Annotation as JMS;
 /**
  * @author Martin Poirier Theoret <mpoiriert@gmail.com>
  */
-class SecurityRequirement
+class SecurityRequirement implements \ArrayAccess
 {
+    use ArrayAccess;
+
     private $data;
 
     /**

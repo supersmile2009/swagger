@@ -2,6 +2,7 @@
 
 namespace Draw\Swagger\Schema;
 
+use Draw\Swagger\Schema\Traits\ArrayAccess;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
 
@@ -10,8 +11,10 @@ use JMS\Serializer\Annotation as JMS;
  *
  * @author Martin Poirier Theoret <mpoiriert@gmail.com>
  */
-class Header 
+class Header implements \ArrayAccess
 {
+    use ArrayAccess;
+
     /**
      * A short description of the header.
      *

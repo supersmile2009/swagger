@@ -2,6 +2,7 @@
 
 namespace Draw\Swagger\Schema;
 
+use Draw\Swagger\Schema\Traits\ArrayAccess;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -10,8 +11,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @Annotation
  */
-class PathItem
+class PathItem implements \ArrayAccess
 {
+    use ArrayAccess;
+
     /**
      * A definition of a GET operation on this path.
      *

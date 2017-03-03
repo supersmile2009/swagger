@@ -2,6 +2,7 @@
 
 namespace Draw\Swagger\Schema;
 
+use Draw\Swagger\Schema\Traits\ArrayAccess;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
 
@@ -10,8 +11,10 @@ use JMS\Serializer\Annotation as JMS;
  *
  * @Annotation
  */
-class Contact
+class Contact implements \ArrayAccess
 {
+    use ArrayAccess;
+
     /**
      * The identifying name of the contact person/organization.
      *

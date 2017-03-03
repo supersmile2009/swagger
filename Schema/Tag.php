@@ -2,6 +2,7 @@
 
 namespace Draw\Swagger\Schema;
 
+use Draw\Swagger\Schema\Traits\ArrayAccess;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
 
@@ -9,8 +10,10 @@ use JMS\Serializer\Annotation as JMS;
  * @Annotation
  * @Target({"METHOD"})
  */
-class Tag
+class Tag implements \ArrayAccess
 {
+    use ArrayAccess;
+
     /**
      * The name of the tag.
      *

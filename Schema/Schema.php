@@ -2,6 +2,7 @@
 
 namespace Draw\Swagger\Schema;
 
+use Draw\Swagger\Schema\Traits\ArrayAccess;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -9,8 +10,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @author Martin Poirier Theoret <mpoiriert@gmail.com>
  *
  */
-class Schema
+class Schema implements \ArrayAccess
 {
+    use ArrayAccess;
+
     /**
      * @var string
      *

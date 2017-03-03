@@ -4,6 +4,7 @@ namespace Draw\Swagger\Schema;
 
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
+use Draw\Swagger\Schema\Traits\ArrayAccess;
 
 /**
  * @author Martin Poirier Theoret <mpoiriert@gmail.com>
@@ -24,8 +25,10 @@ use JMS\Serializer\Annotation as JMS;
  *      }
  * )
  */
-abstract class BaseParameter
+abstract class BaseParameter implements \ArrayAccess
 {
+    use ArrayAccess;
+
     /**
      * The name of the parameter. Parameter names are case sensitive.
      *  - If in is "path", the name field MUST correspond to the associated path segment from the path field in the Paths Object.

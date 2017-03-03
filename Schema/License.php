@@ -2,6 +2,7 @@
 
 namespace Draw\Swagger\Schema;
 
+use Draw\Swagger\Schema\Traits\ArrayAccess;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
 
@@ -10,8 +11,10 @@ use JMS\Serializer\Annotation as JMS;
  *
  * @Annotation
  */
-class License
+class License implements \ArrayAccess
 {
+    use ArrayAccess;
+
     /**
      * The license name used for the API.
      *

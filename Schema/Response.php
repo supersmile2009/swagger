@@ -2,14 +2,17 @@
 
 namespace Draw\Swagger\Schema;
 
+use Draw\Swagger\Schema\Traits\ArrayAccess;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @author Martin Poirier Theoret <mpoiriert@gmail.com>
  */
-class Response
+class Response implements \ArrayAccess
 {
+    use ArrayAccess;
+
     /**
      * @var string
      *

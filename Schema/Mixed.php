@@ -2,15 +2,18 @@
 
 namespace Draw\Swagger\Schema;
 
+use Draw\Swagger\Schema\Traits\ArrayAccess;
 use JMS\Serializer\Annotation as JMS;
 use JMS\Serializer\JsonDeserializationVisitor;
 use JMS\Serializer\JsonSerializationVisitor;
 
-class Mixed
+class Mixed implements \ArrayAccess
 {
+    use ArrayAccess;
+
     public $data;
 
-    public function __construct($data)
+    public function __construct($data = null)
     {
         $this->data = $data;
     }

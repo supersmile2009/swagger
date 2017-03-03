@@ -2,6 +2,7 @@
 
 namespace Draw\Swagger\Schema;
 
+use Draw\Swagger\Schema\Traits\ArrayAccess;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
 
@@ -10,8 +11,10 @@ use JMS\Serializer\Annotation as JMS;
  *
  * @Annotation
  */
-class Swagger implements VendorExtensionSupportInterface
+class Swagger implements VendorExtensionSupportInterface, \ArrayAccess
 {
+    use ArrayAccess;
+
     /**
      * Specifies the Swagger Specification version being used.
      * It can be used by the Swagger UI and other clients to interpret the API listing.

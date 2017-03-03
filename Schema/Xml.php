@@ -2,11 +2,14 @@
 
 namespace Draw\Swagger\Schema;
 
+use Draw\Swagger\Schema\Traits\ArrayAccess;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class Xml
+class Xml implements \ArrayAccess
 {
+    use ArrayAccess;
+
     /**
      * Replaces the name of the element/attribute used for the described schema property.
      * When defined within the Items Object (items), it will affect the name of the individual XML elements within the list.

@@ -2,14 +2,17 @@
 
 namespace Draw\Swagger\Schema;
 
+use Draw\Swagger\Schema\Traits\ArrayAccess;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
 
 /**
  * @author Martin Poirier Théoret <mpoiriert@gmail.com>
  */
-class Items
+class Items implements \ArrayAccess
 {
+    use ArrayAccess;
+
     /**
      * The internal type of the array. The value MUST be one of "string", "number", "integer", "boolean", or "array".
      * Files and models are not allowed.

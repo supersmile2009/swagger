@@ -2,6 +2,7 @@
 
 namespace Draw\Swagger\Schema;
 
+use Draw\Swagger\Schema\Traits\ArrayAccess;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
 
@@ -10,8 +11,10 @@ use JMS\Serializer\Annotation as JMS;
  *
  * @Annotation
  */
-class Operation
+class Operation implements \ArrayAccess
 {
+    use ArrayAccess;
+
     /**
      * A list of tags for API documentation control.
      * Tags can be used for logical grouping of operations by resources or any other qualifier.
