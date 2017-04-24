@@ -7,8 +7,9 @@ use Draw\Swagger\Extraction\ExtractionImpossibleException;
 use Draw\Swagger\Schema\Operation;
 use Draw\Swagger\Schema\PathItem;
 use Draw\Swagger\Swagger;
+use PHPUnit\Framework\TestCase;
 
-class PhpDocOperationExtractorTest extends \PHPUnit_Framework_TestCase
+class PhpDocOperationExtractorTest extends TestCase
 {
     public function provideTestCanExtract()
     {

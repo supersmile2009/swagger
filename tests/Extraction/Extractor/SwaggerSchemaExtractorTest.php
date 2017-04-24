@@ -5,8 +5,9 @@ namespace Draw\Swagger\Extraction\Extractor;
 use Draw\Swagger\Extraction\ExtractionImpossibleException;
 use Draw\Swagger\Schema\Swagger;
 use JMS\Serializer\SerializerBuilder;
+use PHPUnit\Framework\TestCase;
 
-class SwaggerSchemaExtractorTest extends \PHPUnit_Framework_TestCase
+class SwaggerSchemaExtractorTest extends TestCase
 {
     public function provideTestCanExtract()
     {

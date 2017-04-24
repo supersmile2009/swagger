@@ -56,11 +56,11 @@ class PhpDocOperationExtractor implements ExtractorInterface
         $docBlock = new DocBlock($method->getDocComment());
 
         if(!$operation->summary) {
-            $operation->summary = $docBlock->getShortDescription();
+            $operation->summary = $docBlock->getSummary();
         }
 
         if($operation->description) {
-            $operation->description = $docBlock->getLongDescription();
+            $operation->description = $docBlock->getDescription();
         }
 
         foreach ($docBlock->getTagsByName('return') as $returnTag) {
@@ -83,7 +83,8 @@ class PhpDocOperationExtractor implements ExtractorInterface
         }
 
         foreach ($docBlock->getTagsByName('throws') as $throwTag) {
-            /* @var $throwTag \phpDocumentor\Reflection\DocBlock\Tag\ThrowsTag */
+            /* @var $throwTag \phpDocumentor\Reflection\DocBlock\Tags\Throws */
+
 
             $type = $throwTag->getType();
             $exceptionClass = new \ReflectionClass($type);

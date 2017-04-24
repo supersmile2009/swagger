@@ -170,7 +170,7 @@ class JmsExtractor implements ExtractorInterface
             $docBlock = new DocBlock($ref->getProperty($item->name)->getDocComment());
         }
 
-        return $docBlock->getShortDescription();
+        return $docBlock->getSummary();
     }
 
     /**

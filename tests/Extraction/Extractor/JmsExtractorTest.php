@@ -10,8 +10,9 @@ use Draw\Swagger\Schema\Schema;
 use JMS\Serializer\Naming\CamelCaseNamingStrategy;
 use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
 use JMS\Serializer\SerializerBuilder;
+use PHPUnit\Framework\TestCase;
 
-class JmsExtractorTest extends \PHPUnit_Framework_TestCase
+class JmsExtractorTest extends TestCase
 {
     public function provideTestCanExtract()
     {

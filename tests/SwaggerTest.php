@@ -3,9 +3,10 @@
 namespace Draw\Swagger;
 
 use JMS\Serializer\SerializerBuilder;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-class SwaggerTest extends \PHPUnit_Framework_TestCase
+class SwaggerTest extends TestCase
 {
     public function provideTestExtractSwaggerSchema()
     {
