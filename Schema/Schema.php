@@ -247,4 +247,8 @@ class Schema implements \ArrayAccess
         $this->example = Mixed::convert($this->example);
         $this->enum = Mixed::convert($this->enum, true);
     }
+
+    /*
+     *
+     */
 } 

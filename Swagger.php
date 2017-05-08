@@ -56,12 +56,7 @@ class Swagger
         $this->extractors[$section][$position][] = $extractorInterface;
     }
 
-    /**
-     * @param Schema $schema
-     * @return string
-     */
-    public function dump(Schema $schema)
-    {
+    public function validate(Schema $schema){
         $validator = Validation::createValidatorBuilder()
             ->enableAnnotationMapping(new AnnotationReader())
             ->getValidator();
@@ -70,7 +65,15 @@ class Swagger
         if(count($result)) {
             throw new \InvalidArgumentException("" . $result);
         }
+    }
 
+    /**
+     * @param Schema $schema
+     * @return string
+     */
+    public function dump(Schema $schema)
+    {
+        $this->validate($schema);
         return $this->serializer->serialize($schema, 'json');
     }
 
@@ -89,7 +92,8 @@ class Swagger
             $extractionContext = new ExtractionContext($this, $type);
         }
 
-        foreach ($this->getSortedExtractors() as $extractor) {
+        $sortedExtractors = $this->getSortedExtractors();
+        foreach ($sortedExtractors as $extractor) {
             if ($extractor->canExtract($source, $type, $extractionContext)) {
                 $extractor->extract($source, $type, $extractionContext);
             }
