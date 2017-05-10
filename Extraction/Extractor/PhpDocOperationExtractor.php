@@ -28,6 +28,9 @@ class PhpDocOperationExtractor implements ExtractorInterface
      * @param ReflectionMethod $method
      * @param Operation $operation
      * @param ExtractionContextInterface $extractionContext
+     *
+     * @throws ExtractionImpossibleException
+     * @return void
      */
     public function extract($method, $operation, ExtractionContextInterface $extractionContext)
     {
@@ -46,20 +49,31 @@ class PhpDocOperationExtractor implements ExtractorInterface
             $operation->description = $docBlock->getDescription();
         }
 
-        /** @var DocBlock\Tags\Return_ $returnTag */
-        foreach ($docBlock->getTagsByName('return') as $returnTag) {
-            /** @var Object_ $type */
-            $type = $returnTag->getType();
+        $returnTags = $docBlock->getTagsByName('return');
+        if (empty($returnTags)) {
             $response = new Response();
             $response->schema = $responseSchema = new Schema();
-            $response->description = $returnTag->getDescription();
+            $response->description = "Generic 200 response";
             $operation->responses[200] = $response;
-
             $subContext = $extractionContext->createSubContext();
             $subContext->setParameter('direction', 'out');
+            $extractionContext->getSwagger()->extract("test", $responseSchema, $subContext);
 
-            $extractionContext->getSwagger()->extract((string)$type, $responseSchema, $subContext);
+        } else {
+            /** @var DocBlock\Tags\Return_ $returnTag */
+            foreach ($returnTags as $returnTag) {
+                /** @var Object_ $type */
+                $type = $returnTag->getType();
+                $response = new Response();
+                $response->schema = $responseSchema = new Schema();
+                $response->description = $returnTag->getDescription();
+                $operation->responses[200] = $response;
 
+                $subContext = $extractionContext->createSubContext();
+                $subContext->setParameter('direction', 'out');
+
+                $extractionContext->getSwagger()->extract((string)$type, $responseSchema, $subContext);
+            }
         }
 
         if ($docBlock->getTagsByName('deprecated')) {
@@ -115,7 +129,7 @@ class PhpDocOperationExtractor implements ExtractorInterface
                 }
 
                 if (!$parameter->type) {
-                    $parameter->type = (string) $paramTag->getType();
+                    $parameter->type = (string)$paramTag->getType();
                 }
                 continue;
             }
@@ -132,7 +146,10 @@ class PhpDocOperationExtractor implements ExtractorInterface
                     if (!$parameter->type) {
                         $subContext = $extractionContext->createSubContext();
                         $subContext->setParameter('direction', 'in');
-                        $extractionContext->getSwagger()->extract( (string) $paramTag->getType(), $parameter, $subContext);
+                        $extractionContext->getSwagger()->extract(
+                            (string)$paramTag->getType(),
+                            $parameter, $subContext
+                        );
                     }
 
                     continue;

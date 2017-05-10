@@ -18,6 +18,7 @@ class Schema implements \ArrayAccess
      * @var string
      *
      * @JMS\Type("string")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $format;
 
@@ -25,6 +26,7 @@ class Schema implements \ArrayAccess
      * @var string
      *
      * @JMS\Type("string")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $title;
 
@@ -32,6 +34,7 @@ class Schema implements \ArrayAccess
      * @var string
      *
      * @JMS\Type("string")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $description;
 
@@ -39,6 +42,7 @@ class Schema implements \ArrayAccess
      * @var Mixed
      *
      * @JMS\Type("Draw\Swagger\Schema\Mixed")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $default;
 
@@ -46,6 +50,7 @@ class Schema implements \ArrayAccess
      * @var number
      *
      * @JMS\Type("double")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $maximum;
 
@@ -53,6 +58,7 @@ class Schema implements \ArrayAccess
      * @var boolean
      *
      * @JMS\Type("boolean")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $exclusiveMaximum;
 
@@ -60,6 +66,7 @@ class Schema implements \ArrayAccess
      * @var number
      *
      * @JMS\Type("double")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $minimum;
 
@@ -68,6 +75,7 @@ class Schema implements \ArrayAccess
      *
      * @JMS\Type("boolean")
      * @JMS\SerializedName("exclusiveMinimum")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $exclusiveMinimum;
 
@@ -76,6 +84,7 @@ class Schema implements \ArrayAccess
      *
      * @JMS\Type("integer")
      * @JMS\SerializedName("maxLength")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $maxLength;
 
@@ -84,6 +93,7 @@ class Schema implements \ArrayAccess
      *
      * @JMS\Type("integer")
      * @JMS\SerializedName("minLength")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $minLength;
 
@@ -91,6 +101,7 @@ class Schema implements \ArrayAccess
      * @var string
      *
      * @JMS\Type("string")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $pattern;
 
@@ -99,6 +110,7 @@ class Schema implements \ArrayAccess
      *
      * @JMS\Type("integer")
      * @JMS\SerializedName("maxItems")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $maxItems;
 
@@ -107,6 +119,7 @@ class Schema implements \ArrayAccess
      *
      * @JMS\Type("integer")
      * @JMS\SerializedName("minItems")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $minItems;
 
@@ -115,6 +128,7 @@ class Schema implements \ArrayAccess
      *
      * @JMS\Type("boolean")
      * @JMS\SerializedName("uniqueItems")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $uniqueItems;
 
@@ -123,6 +137,7 @@ class Schema implements \ArrayAccess
      *
      * @JMS\Type("integer")
      * @JMS\SerializedName("maxProperties")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $maxProperties;
 
@@ -131,6 +146,7 @@ class Schema implements \ArrayAccess
      *
      * @JMS\Type("integer")
      * @JMS\SerializedName("minProperties")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $minProperties;
 
@@ -138,6 +154,8 @@ class Schema implements \ArrayAccess
      * @var string[]
      *
      * @JMS\Type("array<string>")
+     * @JMS\SkipWhenEmpty()
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $required = [];
 
@@ -145,6 +163,7 @@ class Schema implements \ArrayAccess
      * @var Mixed[]
      *
      * @JMS\Type("array<Draw\Swagger\Schema\Mixed>")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $enum;
 
@@ -152,6 +171,7 @@ class Schema implements \ArrayAccess
      * @var string
      *
      * @JMS\Type("string")
+     * @JMS\Exclude(if="object.ref !== null")
      *
      * @Assert\NotBlank()
      */
@@ -161,6 +181,7 @@ class Schema implements \ArrayAccess
      * @var Schema
      *
      * @JMS\Type("Draw\Swagger\Schema\Schema")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $items;
 
@@ -169,6 +190,7 @@ class Schema implements \ArrayAccess
      *
      * @JMS\Type("array<Draw\Swagger\Schema\Schema>")
      * @JMS\SerializedName("allOf")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $allOf;
 
@@ -176,6 +198,7 @@ class Schema implements \ArrayAccess
      * @var Schema[]
      *
      * @JMS\Type("array<string,Draw\Swagger\Schema\Schema>")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $properties;
 
@@ -184,6 +207,7 @@ class Schema implements \ArrayAccess
      *
      * @JMS\Type("Draw\Swagger\Schema\Schema")
      * @JMS\SerializedName("additionalProperties")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $additionalProperties;
 
@@ -197,6 +221,7 @@ class Schema implements \ArrayAccess
      *
      * @JMS\Type("boolean")
      * @JMS\SerializedName("readOnly")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $readOnly;
 
@@ -208,6 +233,7 @@ class Schema implements \ArrayAccess
      * @var Xml
      *
      * @JMS\Type("Draw\Swagger\Schema\Xml")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $xml;
 
@@ -218,6 +244,7 @@ class Schema implements \ArrayAccess
      *
      * @JMS\Type("Draw\Swagger\Schema\ExternalDocumentation")
      * @JMS\SerializedName("externalDocs")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $externalDocs;
 
@@ -227,6 +254,7 @@ class Schema implements \ArrayAccess
      *
      * @var Mixed
      * @JMS\Type("Draw\Swagger\Schema\Mixed")
+     * @JMS\Exclude(if="object.ref !== null")
      */
     public $example;
 

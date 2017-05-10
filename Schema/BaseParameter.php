@@ -51,7 +51,7 @@ abstract class BaseParameter implements \ArrayAccess
      *
      * @JMS\Type("string")
      */
-    public $description;
+    public $description = "";
 
     /**
      * Determines whether this parameter is mandatory.
@@ -62,7 +62,7 @@ abstract class BaseParameter implements \ArrayAccess
      *
      * @JMS\Type("boolean")
      */
-    public $required;
+    public $required = false;
 
     /**
      * @JMS\VirtualProperty

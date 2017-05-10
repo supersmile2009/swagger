@@ -14,6 +14,7 @@ use JMS\Serializer\SerializationContext;
 use Metadata\MetadataFactoryInterface;
 use Metadata\PropertyMetadata;
 use phpDocumentor\Reflection\DocBlock;
+use phpDocumentor\Reflection\DocBlockFactory;
 use ReflectionClass;
 
 class JmsExtractor implements ExtractorInterface
@@ -160,14 +161,15 @@ class JmsExtractor implements ExtractorInterface
     private function getDescription(PropertyMetadata $item)
     {
         $ref = new \ReflectionClass($item->class);
+        $factory = DocBlockFactory::createInstance();
         if ($item instanceof VirtualPropertyMetadata) {
             try {
-                $docBlock = new DocBlock($ref->getMethod($item->getter)->getDocComment());
+                $docBlock = $factory->create($ref->getMethod($item->getter)->getDocComment());
             } catch (\ReflectionException $e) {
                 return '';
             }
         } else {
-            $docBlock = new DocBlock($ref->getProperty($item->name)->getDocComment());
+            $docBlock = $factory->create($ref->getProperty($item->name)->getDocComment());
         }
 
         return $docBlock->getSummary();

@@ -21,11 +21,38 @@ class SwaggerSchemaExtractor implements ExtractorInterface
     }
 
     /**
+     * Extract the requested data.
+     *
+     * The system is a incrementing extraction system. A extractor can be call before you and you must complete the
+     * extraction.
+     *
+     * @param string $source
+     * @param Swagger $swagger
+     * @param ExtractionContextInterface $extractionContext
+     *
+     * @throws ExtractionImpossibleException
+     * @return void
+     */
+    public function extract($source, $swagger, ExtractionContextInterface $extractionContext)
+    {
+        if (!$this->canExtract($source, $swagger, $extractionContext)) {
+            throw new ExtractionImpossibleException();
+        }
+
+        $result = $this->serializer->deserialize($source, get_class($swagger), 'json');
+
+        foreach ($result as $key => $value) {
+            $swagger->{$key} = $value;
+        }
+    }
+
+    /**
      * Return if the extractor can extract the requested data or not.
      *
      * @param $source
      * @param $type
      * @param ExtractionContextInterface $extractionContext
+     *
      * @return boolean
      */
     public function canExtract($source, $type, ExtractionContextInterface $extractionContext)
@@ -56,28 +83,5 @@ class SwaggerSchemaExtractor implements ExtractorInterface
         }
 
         return true;
-    }
-
-    /**
-     * Extract the requested data.
-     *
-     * The system is a incrementing extraction system. A extractor can be call before you and you must complete the
-     * extraction.
-     *
-     * @param string $source
-     * @param Swagger $swagger
-     * @param ExtractionContextInterface $extractionContext
-     */
-    public function extract($source, $swagger, ExtractionContextInterface $extractionContext)
-    {
-        if (!$this->canExtract($source, $swagger, $extractionContext)) {
-            throw new ExtractionImpossibleException();
-        }
-
-        $result = $this->serializer->deserialize($source, get_class($swagger), 'json');
-
-        foreach ($result as $key => $value) {
-            $swagger->{$key} = $value;
-        }
     }
 }
