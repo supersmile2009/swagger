@@ -52,6 +52,8 @@ class TypeSchemaExtractor implements ExtractorInterface
      * @param string $source
      * @param SupportedTarget $target
      * @param ExtractionContextInterface $extractionContext
+     *
+     * @throws ExtractionImpossibleException
      */
     public function extract($source, $target, ExtractionContextInterface $extractionContext)
     {
@@ -130,7 +132,7 @@ class TypeSchemaExtractor implements ExtractorInterface
             $this->definitionHashes[$modelName][] = $hash;
         }
 
-        return array_search($hash, $this->definitionHashes);
+        return array_search($hash, $this->definitionHashes[$modelName]);
     }
 
     private function getPrimitiveType($type)
