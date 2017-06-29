@@ -52,6 +52,8 @@ class TypeSchemaExtractor implements ExtractorInterface
      * @param string $source
      * @param SupportedTarget $target
      * @param ExtractionContextInterface $extractionContext
+     *
+     * @throws ExtractionImpossibleException
      */
     public function extract($source, $target, ExtractionContextInterface $extractionContext)
     {
@@ -91,17 +93,36 @@ class TypeSchemaExtractor implements ExtractorInterface
                 $name = $this->definitionAliases[$name];
             }
 
-            if($context && $hash = $this->getHash($name, $context)) {
-                $definitionName = $name . '?' . $hash;
-            } else {
-                $definitionName = $name;
+            // Allows generating different models per each serializerGroups configuration from one Entity
+//            if($context && $hash = $this->getHash($name, $context)) {
+//                $definitionName = $name . '?' . $hash;
+//            } else {
+//                $definitionName = $name;
+//            }
+//            $definitionName = str_replace('\\','.', $definitionName);
+
+
+            $definitionName = str_replace('\\','.', $name);
+
+            // If definition for Entity is already registered and we are generating output model, merge serializer groups
+            if ($rootSchema->hasDefinition($definitionName) && $direction === 'out') {
+                $lastContext = $rootSchema->definitions[$definitionName]->serializerGroups;
+                if (isset($context['serializer-groups'])) {
+                    $context['serializer-groups'] = array_unique(array_merge($lastContext, $context['serializer-groups']));
+                } else {
+                    $context['serializer-groups'] = $lastContext;
+                }
+
             }
 
-            $definitionName = str_replace('\\','.', $definitionName);
-
-            if(!$rootSchema->hasDefinition($definitionName)) {
+            // If definition has not been added and processed yet OR if we are generating output model,
+            // perform extraction procedure (need to re-run for second case because of added serializer groups
+            if(!$rootSchema->hasDefinition($definitionName) || $direction === 'out') {
                 $rootSchema->addDefinition($definitionName, $refSchema = new Schema());
                 $refSchema->type = "object";
+                if (isset($context['serializer-groups'])) {
+                    $refSchema->serializerGroups = $context['serializer-groups'];
+                }
                 $extractionContext->getSwagger()->extract(
                     $reflectionClass,
                     $refSchema ,
@@ -130,7 +151,7 @@ class TypeSchemaExtractor implements ExtractorInterface
             $this->definitionHashes[$modelName][] = $hash;
         }
 
-        return array_search($hash, $this->definitionHashes);
+        return array_search($hash, $this->definitionHashes[$modelName]);
     }
 
     private function getPrimitiveType($type)
