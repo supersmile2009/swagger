@@ -267,6 +267,16 @@ class Schema implements \ArrayAccess
     public $ref;
 
     /**
+     * Serializer groups extracted from annotations
+     *
+     * @var array
+     *
+     * @JMS\Type("array<string>")
+     * @JMS\Exclude(if="object.ref !== null")
+     */
+    public $serializerGroups;
+
+    /**
      * @JMS\PreSerialize()
      */
     public function preSerialize()

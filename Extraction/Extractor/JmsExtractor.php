@@ -118,6 +118,8 @@ class JmsExtractor implements ExtractorInterface
                 $propertySchema->readOnly = true;
             }
 
+            $propertySchema->serializerGroups = $item->groups;
+
             $name = $this->namingStrategy->translateName($item);
             $schema->properties[$name] = $propertySchema;
             $propertySchema->description = $this->getDescription($item);

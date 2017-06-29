@@ -93,17 +93,29 @@ class TypeSchemaExtractor implements ExtractorInterface
                 $name = $this->definitionAliases[$name];
             }
 
-            if($context && $hash = $this->getHash($name, $context)) {
-                $definitionName = $name . '?' . $hash;
-            } else {
-                $definitionName = $name;
+            // Allows generating different models per each serializerGroups configuration from one Entity
+//            if($context && $hash = $this->getHash($name, $context)) {
+//                $definitionName = $name . '?' . $hash;
+//            } else {
+//                $definitionName = $name;
+//            }
+//            $definitionName = str_replace('\\','.', $definitionName);
+
+
+            $definitionName = str_replace('\\','.', $name);
+
+            // If definition for Entity is already registered and we are generating output model, merge serializer groups
+            if ($rootSchema->hasDefinition($definitionName) && $direction === 'out') {
+                $lastContext = $rootSchema->definitions[$definitionName]->serializerGroups;
+                $extractionContext->setParameter('out-model-context', array_merge_recursive($lastContext, $context));
             }
 
-            $definitionName = str_replace('\\','.', $definitionName);
-
-            if(!$rootSchema->hasDefinition($definitionName)) {
+            // If definition has not been added and processed yet OR if we are generating output model,
+            // perform extraction procedure (need to re-run for second case because of added serializer groups
+            if(!$rootSchema->hasDefinition($definitionName) || $direction === 'out') {
                 $rootSchema->addDefinition($definitionName, $refSchema = new Schema());
                 $refSchema->type = "object";
+                $refSchema->serializerGroups = $context;
                 $extractionContext->getSwagger()->extract(
                     $reflectionClass,
                     $refSchema ,
