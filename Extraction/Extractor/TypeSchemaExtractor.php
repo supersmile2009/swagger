@@ -107,7 +107,12 @@ class TypeSchemaExtractor implements ExtractorInterface
             // If definition for Entity is already registered and we are generating output model, merge serializer groups
             if ($rootSchema->hasDefinition($definitionName) && $direction === 'out') {
                 $lastContext = $rootSchema->definitions[$definitionName]->serializerGroups;
-                $extractionContext->setParameter('out-model-context', array_merge_recursive($lastContext, $context));
+                if (isset($context['serializer-groups'])) {
+                    $context['serializer-groups'] = array_unique(array_merge($lastContext, $context['serializer-groups']));
+                } else {
+                    $context['serializer-groups'] = $lastContext;
+                }
+
             }
 
             // If definition has not been added and processed yet OR if we are generating output model,
@@ -115,7 +120,9 @@ class TypeSchemaExtractor implements ExtractorInterface
             if(!$rootSchema->hasDefinition($definitionName) || $direction === 'out') {
                 $rootSchema->addDefinition($definitionName, $refSchema = new Schema());
                 $refSchema->type = "object";
-                $refSchema->serializerGroups = $context;
+                if (isset($context['serializer-groups'])) {
+                    $refSchema->serializerGroups = $context['serializer-groups'];
+                }
                 $extractionContext->getSwagger()->extract(
                     $reflectionClass,
                     $refSchema ,
