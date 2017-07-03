@@ -115,9 +115,10 @@ class TypeSchemaExtractor implements ExtractorInterface
 
             }
 
-            // If definition has not been added and processed yet OR if we are generating output model,
-            // perform extraction procedure (need to re-run for second case because of added serializer groups
-            if(!$rootSchema->hasDefinition($definitionName) || $direction === 'out') {
+            $hash = $this->getHash($context['serializer-groups']);
+
+            // If definition has not been added and processed yet OR if serializer groups hash changed (new groups added)
+            if(!$rootSchema->hasDefinition($definitionName) || $this->hashExists($name, $hash) === false) {
                 $rootSchema->addDefinition($definitionName, $refSchema = new Schema());
                 $refSchema->type = "object";
                 if (isset($context['serializer-groups'])) {
@@ -139,19 +140,24 @@ class TypeSchemaExtractor implements ExtractorInterface
         }
     }
 
-    private function getHash($modelName, array $context)
+    private function getHash(array $context)
     {
-        $hash = md5(http_build_query($context));
+        return md5(http_build_query($context));
+    }
 
-        if(!array_key_exists($modelName, $this->definitionHashes)) {
+    private function hashExists($modelName, $hash)
+    {
+        if (!array_key_exists($modelName, $this->definitionHashes)) {
             $this->definitionHashes[$modelName] = [];
         }
 
-        if(false === ($index = array_search($hash, $this->definitionHashes[$modelName]))) {
+        // If hash not found - register it and return false (meaning it wasn't registered)
+        if (false === array_search($hash, $this->definitionHashes[$modelName])) {
             $this->definitionHashes[$modelName][] = $hash;
+            return false;
+        } else {
+            return true;
         }
-
-        return array_search($hash, $this->definitionHashes[$modelName]);
     }
 
     private function getPrimitiveType($type)

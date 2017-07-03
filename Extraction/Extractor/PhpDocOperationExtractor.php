@@ -12,6 +12,7 @@ use Draw\Swagger\Schema\Response;
 use Draw\Swagger\Schema\Schema;
 use phpDocumentor\Reflection\DocBlock;
 use phpDocumentor\Reflection\DocBlockFactory;
+use phpDocumentor\Reflection\Types\Compound;
 use phpDocumentor\Reflection\Types\Object_;
 use ReflectionMethod;
 
@@ -58,21 +59,38 @@ class PhpDocOperationExtractor implements ExtractorInterface
             $subContext = $extractionContext->createSubContext();
             $subContext->setParameter('direction', 'out');
             $extractionContext->getSwagger()->extract("test", $responseSchema, $subContext);
-
         } else {
             /** @var DocBlock\Tags\Return_ $returnTag */
             foreach ($returnTags as $returnTag) {
                 /** @var Object_ $type */
                 $type = $returnTag->getType();
-                $response = new Response();
-                $response->schema = $responseSchema = new Schema();
-                $response->description = $returnTag->getDescription();
-                $operation->responses[200] = $response;
 
-                $subContext = $extractionContext->createSubContext();
-                $subContext->setParameter('direction', 'out');
+                // If multiple return types are specified in return tag
+                if ($type instanceof Compound) {
+                    $types = explode('|', $type->__toString());
+                    foreach ($types as $actualType) {
+                        $response = new Response();
+                        $response->schema = $responseSchema = new Schema();
+                        $response->description = $returnTag->getDescription();
+                        $operation->responses[200] = $response;
 
-                $extractionContext->getSwagger()->extract((string)$type, $responseSchema, $subContext);
+                        $subContext = $extractionContext->createSubContext();
+                        $subContext->setParameter('direction', 'out');
+
+                        $extractionContext->getSwagger()->extract((string)$actualType, $responseSchema, $subContext);
+                    }
+                } else {
+                    $response = new Response();
+                    $response->schema = $responseSchema = new Schema();
+                    $response->description = $returnTag->getDescription();
+                    $operation->responses[200] = $response;
+
+                    $subContext = $extractionContext->createSubContext();
+                    $subContext->setParameter('direction', 'out');
+
+                    $extractionContext->getSwagger()->extract((string)$type, $responseSchema, $subContext);
+                }
+
             }
         }
 
