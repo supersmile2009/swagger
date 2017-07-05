@@ -81,24 +81,11 @@ class JmsExtractor implements ExtractorInterface
 
         $exclusionStrategies = array();
 
+
         $subContext = $extractionContext->createSubContext();
 
-        switch ($extractionContext->getParameter('direction')) {
-            case 'in':
-                $modelContext = $subContext->getParameter('in-model-context', array());
-                break;
-            case 'out';
-                $modelContext = $subContext->getParameter('out-model-context', array());
-                break;
-        }
-
-        $groups = [];
-        if(array_key_exists('serializer-groups', $modelContext)) {
-            $groups = $modelContext['serializer-groups'];
-        }
-
-        if ($groups) {
-            $exclusionStrategies[] = new GroupsExclusionStrategy($groups);
+        if ($schema->serializerGroups !== null) {
+            $exclusionStrategies[] = new GroupsExclusionStrategy($schema->serializerGroups);
         }
 
         foreach ($meta->propertyMetadata as $property => $item) {

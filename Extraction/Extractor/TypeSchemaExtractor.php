@@ -93,19 +93,10 @@ class TypeSchemaExtractor implements ExtractorInterface
                 $name = $this->definitionAliases[$name];
             }
 
-            // Allows generating different models per each serializerGroups configuration from one Entity
-//            if($context && $hash = $this->getHash($name, $context)) {
-//                $definitionName = $name . '?' . $hash;
-//            } else {
-//                $definitionName = $name;
-//            }
-//            $definitionName = str_replace('\\','.', $definitionName);
-
-
             $definitionName = str_replace('\\','.', $name);
 
-            // If definition for Entity is already registered and we are generating output model, merge serializer groups
-            if ($rootSchema->hasDefinition($definitionName) && $direction === 'out') {
+            // If definition for Entity is already registered, merge serializer groups
+            if ($rootSchema->hasDefinition($definitionName)) {
                 $lastContext = $rootSchema->definitions[$definitionName]->serializerGroups;
                 if (isset($context['serializer-groups'])) {
                     $context['serializer-groups'] = array_unique(array_merge($lastContext, $context['serializer-groups']));
