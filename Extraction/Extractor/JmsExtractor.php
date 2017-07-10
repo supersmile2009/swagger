@@ -70,6 +70,8 @@ class JmsExtractor implements ExtractorInterface
      * @param ReflectionClass $reflectionClass
      * @param Schema $schema
      * @param ExtractionContextInterface $extractionContext
+     *
+     * @throws ExtractionImpossibleException
      */
     public function extract($reflectionClass, $schema, ExtractionContextInterface $extractionContext)
     {
@@ -109,7 +111,12 @@ class JmsExtractor implements ExtractorInterface
 
             $name = $this->namingStrategy->translateName($item);
             $schema->properties[$name] = $propertySchema;
-            $propertySchema->description = $this->getDescription($item);
+
+            // We can't get description for disctriminator field, it doesn't exist as normal property
+            if ($property !== $meta->discriminatorFieldName) {
+                $propertySchema->description = $this->getDescription($item);
+            }
+
         }
     }
 
