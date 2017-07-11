@@ -30,14 +30,21 @@ class JmsExtractor implements ExtractorInterface
     private $namingStrategy;
 
     /**
+     * @var TypeSchemaExtractor
+     */
+    private $typeSchemaExtractor;
+
+    /**
      * Constructor, requires JMS Metadata factory
      */
     public function __construct(
         MetadataFactoryInterface $factory,
-        PropertyNamingStrategyInterface $namingStrategy
+        PropertyNamingStrategyInterface $namingStrategy,
+        TypeSchemaExtractor $typeSchemaExtractor
     ) {
         $this->factory = $factory;
         $this->namingStrategy = $namingStrategy;
+        $this->typeSchemaExtractor = $typeSchemaExtractor;
     }
 
     /**
@@ -89,9 +96,22 @@ class JmsExtractor implements ExtractorInterface
         if ($schema->serializerGroups !== null) {
             $exclusionStrategies[] = new GroupsExclusionStrategy($schema->serializerGroups);
         }
+        // If this is child class with discriminator map, store information about parent class alias
+        if (isset($meta->discriminatorBaseClass)
+            && $meta->discriminatorBaseClass !== $reflectionClass->getName()
+        ) {
+            $schema->parentAlias = $this->typeSchemaExtractor->getAliasFor($meta->discriminatorBaseClass);
+        }
 
         foreach ($meta->propertyMetadata as $property => $item) {
             if ($this->shouldSkipProperty($exclusionStrategies, $item)) {
+                continue;
+            }
+            // If there is a base class and current property belongs to it (is inherited), don't extract this properties
+            if (isset($meta->discriminatorBaseClass)
+                && $meta->discriminatorBaseClass !== $reflectionClass->getName()
+                && $meta->discriminatorBaseClass === $item->class
+            ) {
                 continue;
             }
 

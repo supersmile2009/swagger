@@ -117,7 +117,7 @@ class TypeSchemaExtractor implements ExtractorInterface
                 }
                 $extractionContext->getSwagger()->extract(
                     $reflectionClass,
-                    $refSchema ,
+                    $refSchema,
                     $extractionContext
                 );
             }
@@ -198,5 +198,12 @@ class TypeSchemaExtractor implements ExtractorInterface
         };
 
         return null;
+    }
+
+    public function getAliasFor($className) {
+        if(array_key_exists($className, $this->definitionAliases)) {
+            return $this->definitionAliases[$className];
+        }
+        return $className;
     }
 }

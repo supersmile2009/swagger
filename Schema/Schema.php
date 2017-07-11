@@ -277,6 +277,16 @@ class Schema implements \ArrayAccess
     public $serializerGroups;
 
     /**
+     * Parent class alias. Base class alias is stored here for child classes that use discriminator map.
+     *
+     * @var string
+     *
+     * @JMS\Type("string")
+     * @JMS\Exclude(if="object.ref !== null")
+     */
+    public $parentAlias;
+
+    /**
      * @JMS\PreSerialize()
      */
     public function preSerialize()
