@@ -108,28 +108,6 @@ class PhpDocOperationExtractor implements ExtractorInterface
             $operation->deprecated = true;
         }
 
-        /* @var $throwTag \phpDocumentor\Reflection\DocBlock\Tags\Throws */
-        foreach ($docBlock->getTagsByName('throws') as $throwTag) {
-            /** @var Object_ $type */
-            $type = $throwTag->getType();
-            $type = $this->convertTypeToFQCN($method, (string)$type);
-            $exceptionClass = new \ReflectionClass((string)$type);
-            $exception = $exceptionClass->newInstanceWithoutConstructor();
-            list($code, $message) = $this->getExceptionInformation($exception);
-            $operation->responses[$code] = $exceptionResponse = new Response();
-
-            if ($throwTag->getDescription()) {
-                $message = $throwTag->getDescription();
-            } else {
-                if (!$message) {
-                    $exceptionClassDocBlock = new DocBlock($exceptionClass->getDocComment());
-                    $message = $exceptionClassDocBlock->getShortDescription();
-                }
-            }
-
-            $exceptionResponse->description = $message;
-        }
-
         $bodyParameter = null;
 
         foreach ($operation->parameters as $parameter) {
