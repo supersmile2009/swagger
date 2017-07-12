@@ -2,6 +2,7 @@
 
 namespace Draw\Swagger\Extraction\Extractor;
 
+use Draw\Swagger\Extraction\ExtendedReflectionClass;
 use Draw\Swagger\Extraction\ExtractionContextInterface;
 use Draw\Swagger\Extraction\ExtractionImpossibleException;
 use Draw\Swagger\Extraction\ExtractorInterface;
@@ -19,6 +20,23 @@ use ReflectionMethod;
 class PhpDocOperationExtractor implements ExtractorInterface
 {
     private $exceptionResponseCodes = [];
+
+    /**
+     * Stores an array of return types (strings containing FQCNs) which should be skipped when generating responses
+     *
+     * @var array
+     */
+    private $excludedReturnTypes = [];
+
+    /**
+     * Set excluded types
+     *
+     * @param array $types
+     */
+    public function setExcludedTypes($types)
+    {
+        $this->excludedReturnTypes = $types;
+    }
 
     /**
      * Extract the requested data.
@@ -52,45 +70,37 @@ class PhpDocOperationExtractor implements ExtractorInterface
 
         $returnTags = $docBlock->getTagsByName('return');
         if (empty($returnTags)) {
-            $response = new Response();
-            $response->schema = $responseSchema = new Schema();
-            $response->description = "Generic 200 response";
-            $operation->responses[200] = $response;
-            $subContext = $extractionContext->createSubContext();
-            $subContext->setParameter('direction', 'out');
-            $extractionContext->getSwagger()->extract("test", $responseSchema, $subContext);
+            $this->generate200Response($operation, $extractionContext);
         } else {
             /** @var DocBlock\Tags\Return_ $returnTag */
             foreach ($returnTags as $returnTag) {
                 /** @var Object_ $type */
                 $type = $returnTag->getType();
 
-                // If multiple return types are specified in return tag
+                // If multiple return types are specified in return tag, separate them
                 if ($type instanceof Compound) {
-                    $types = explode('|', $type->__toString());
-                    foreach ($types as $actualType) {
-                        $response = new Response();
-                        $response->schema = $responseSchema = new Schema();
-                        $response->description = $returnTag->getDescription();
-                        $operation->responses[200] = $response;
-
-                        $subContext = $extractionContext->createSubContext();
-                        $subContext->setParameter('direction', 'out');
-
-                        $extractionContext->getSwagger()->extract((string)$actualType, $responseSchema, $subContext);
-                    }
+                    $types = explode('|', (string)$type);
                 } else {
-                    $response = new Response();
-                    $response->schema = $responseSchema = new Schema();
-                    $response->description = $returnTag->getDescription();
-                    $operation->responses[200] = $response;
-
-                    $subContext = $extractionContext->createSubContext();
-                    $subContext->setParameter('direction', 'out');
-
-                    $extractionContext->getSwagger()->extract((string)$type, $responseSchema, $subContext);
+                    $types = [(string)$type];
                 }
 
+                $i = 1;
+                $count = count($types);
+                foreach ($types as $actualType) {
+                    $actualType = $this->convertTypeToFQCN($method, $actualType);
+                    // We want to exclude specific types, leave only one and generate response for it
+                    // But if all response types are excluded, we want to generate generic 200 response
+                    if ($this->shouldSkipType($actualType)) {
+                        if ($i < $count) {
+                            $i++;
+                            continue;
+                        } else {
+                            $this->generate200Response($operation, $extractionContext);
+                            continue;
+                        }
+                    }
+                    $this->generate200Response($operation, $extractionContext, $returnTag->getDescription(), $actualType);
+                }
             }
         }
 
@@ -102,6 +112,7 @@ class PhpDocOperationExtractor implements ExtractorInterface
         foreach ($docBlock->getTagsByName('throws') as $throwTag) {
             /** @var Object_ $type */
             $type = $throwTag->getType();
+            $type = $this->convertTypeToFQCN($method, (string)$type);
             $exceptionClass = new \ReflectionClass((string)$type);
             $exception = $exceptionClass->newInstanceWithoutConstructor();
             list($code, $message) = $this->getExceptionInformation($exception);
@@ -147,7 +158,7 @@ class PhpDocOperationExtractor implements ExtractorInterface
                 }
 
                 if (!$parameter->type) {
-                    $parameter->type = (string)$paramTag->getType();
+                    $parameter->type = $this->convertTypeToFQCN($method, (string)$paramTag->getType());
                 }
                 continue;
             }
@@ -165,7 +176,7 @@ class PhpDocOperationExtractor implements ExtractorInterface
                         $subContext = $extractionContext->createSubContext();
                         $subContext->setParameter('direction', 'in');
                         $extractionContext->getSwagger()->extract(
-                            (string)$paramTag->getType(),
+                            $this->convertTypeToFQCN($method, (string)$paramTag->getType()),
                             $parameter, $subContext
                         );
                     }
@@ -212,5 +223,60 @@ class PhpDocOperationExtractor implements ExtractorInterface
     public function registerExceptionResponseCodes($exceptionClass, $code = 500, $message = null)
     {
         $this->exceptionResponseCodes[$exceptionClass] = [$code, $message];
+    }
+
+    /**
+     * @param ReflectionMethod $method
+     * @param string $type
+     * @return string
+     */
+    private function convertTypeToFQCN($method, $type)
+    {
+        $isArray = false;
+        $type = trim($type);
+        if (strpos($type, '[]') !== false) {
+            $isArray = true;
+            $type = trim($type, '[]');
+        }
+        if (!class_exists($type)) {
+            $reflectionClass = new ExtendedReflectionClass($method->getDeclaringClass()->getName());
+            $type = $reflectionClass->getFQCN($type);
+        }
+        if ($isArray === true) {
+            $type = $type . '[]';
+        }
+        return $type;
+    }
+
+    /**
+     * Checks if provided return type should be skipped
+     *
+     * @param string $type
+     * @return boolean
+     */
+    private function shouldSkipType($type)
+    {
+        return in_array($type, $this->excludedReturnTypes);
+    }
+
+    /**
+     * Generates new response based on extracted data
+     *
+     * @param string $description
+     * @param string $type
+     * @param Operation $operation
+     * @param ExtractionContextInterface $extractionContext
+     */
+    private function generate200Response($operation, $extractionContext, $description = 'Generic 200 response', $type = 'test')
+    {
+        $response = new Response();
+        $response->schema = $responseSchema = new Schema();
+        $response->description = $description;
+        $operation->responses[200] = $response;
+
+        $subContext = $extractionContext->createSubContext();
+        $subContext->setParameter('direction', 'out');
+
+        $extractionContext->getSwagger()->extract($type, $responseSchema, $subContext);
     }
 }

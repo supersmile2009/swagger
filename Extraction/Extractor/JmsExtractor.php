@@ -134,7 +134,11 @@ class JmsExtractor implements ExtractorInterface
 
             // We can't get description for disctriminator field, it doesn't exist as normal property
             if ($property !== $meta->discriminatorFieldName) {
-                $propertySchema->description = $this->getDescription($item);
+                try {
+                    $propertySchema->description = $this->getDescription($item);
+                } catch (\InvalidArgumentException $e) {
+                    // Property has no description. Nothing critical.
+                }
             }
 
         }
