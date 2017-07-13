@@ -115,7 +115,10 @@ class JmsExtractor implements ExtractorInterface
                 continue;
             }
 
-            if ($type = $this->getNestedTypeInArray($item)) {
+            if ($type = $this->getNestedTypeInArray($item) === 'stdClass') {
+                $propertySchema = new Schema();
+                $propertySchema->type = 'stdClass';
+            } elseif ($type = $this->getNestedTypeInArray($item)) {
                 $propertySchema = new Schema();
                 $propertySchema->type = 'array';
                 $propertySchema->items = $this->extractTypeSchema($type, $subContext);
@@ -163,7 +166,8 @@ class JmsExtractor implements ExtractorInterface
         if (isset($item->type['name']) && in_array($item->type['name'], array('array', 'ArrayCollection'))) {
             if (isset($item->type['params'][1]['name'])) {
                 // E.g. array<string, MyNamespaceMyObject>
-                return $item->type['params'][1]['name'];
+                // All assoc arrays in JS are JSONs, not arrays. stdClass corresponds to JSON.
+                return 'stdClass';
             }
             if (isset($item->type['params'][0]['name'])) {
                 // E.g. array<MyNamespaceMyObject>

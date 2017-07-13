@@ -183,7 +183,8 @@ class TypeSchemaExtractor implements ExtractorInterface
             'DateTime' => array('type' => 'string', 'format' => 'date-time'),
             'dateTime' => array('type' => 'string', 'format' => 'date-time'),
             'password' => array('type' => 'string', 'format' => 'password'),
-            'array' => array('type' => 'array')
+            'array' => array('type' => 'array'),
+            'stdClass' => ['type' => 'stdClass'],
         );
 
         if(array_key_exists($type, $types)) {
