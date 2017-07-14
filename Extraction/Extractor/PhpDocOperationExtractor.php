@@ -11,6 +11,7 @@ use Draw\Swagger\Schema\Operation;
 use Draw\Swagger\Schema\QueryParameter;
 use Draw\Swagger\Schema\Response;
 use Draw\Swagger\Schema\Schema;
+use Draw\SwaggerBundle\Extractor\FOSRestViewOperationExtractor;
 use phpDocumentor\Reflection\DocBlock;
 use phpDocumentor\Reflection\DocBlockFactory;
 use phpDocumentor\Reflection\Types\Compound;
@@ -29,6 +30,11 @@ class PhpDocOperationExtractor implements ExtractorInterface
     private $excludedReturnTypes = [];
 
     /**
+     * @var FOSRestViewOperationExtractor
+     */
+    private $viewExtractor;
+
+    /**
      * Set excluded types
      *
      * @param array $types
@@ -36,6 +42,15 @@ class PhpDocOperationExtractor implements ExtractorInterface
     public function setExcludedTypes($types)
     {
         $this->excludedReturnTypes = $types;
+    }
+
+    /**
+     * PhpDocOperationExtractor constructor.
+     * @param FOSRestViewOperationExtractor $viewExtractor
+     */
+    public function __construct(FOSRestViewOperationExtractor $viewExtractor)
+    {
+        $this->viewExtractor = $viewExtractor;
     }
 
     /**
@@ -68,9 +83,10 @@ class PhpDocOperationExtractor implements ExtractorInterface
             $operation->description = $docBlock->getDescription();
         }
 
+        $statusCode = $this->getStatusCode($method);
         $returnTags = $docBlock->getTagsByName('return');
         if (empty($returnTags)) {
-            $this->generate200Response($operation, $extractionContext);
+            $this->generateResponse($operation, $extractionContext, $statusCode);
         } else {
             /** @var DocBlock\Tags\Return_ $returnTag */
             foreach ($returnTags as $returnTag) {
@@ -95,11 +111,11 @@ class PhpDocOperationExtractor implements ExtractorInterface
                             $i++;
                             continue;
                         } else {
-                            $this->generate200Response($operation, $extractionContext);
+                            $this->generateResponse($operation, $extractionContext, $statusCode);
                             continue;
                         }
                     }
-                    $this->generate200Response($operation, $extractionContext, $returnTag->getDescription(), $actualType);
+                    $this->generateResponse($operation, $extractionContext, $statusCode, $returnTag->getDescription(), $actualType);
                 }
             }
         }
@@ -240,21 +256,36 @@ class PhpDocOperationExtractor implements ExtractorInterface
     /**
      * Generates new response based on extracted data
      *
-     * @param string $description
-     * @param string $type
      * @param Operation $operation
      * @param ExtractionContextInterface $extractionContext
+     * @param int $statusCode
+     * @param string $description
+     * @param string $type
      */
-    private function generate200Response($operation, $extractionContext, $description = 'Generic 200 response', $type = 'test')
+    private function generateResponse($operation, $extractionContext, $statusCode = 200, $description = 'Generic 200 response', $type = 'test')
     {
         $response = new Response();
         $response->schema = $responseSchema = new Schema();
         $response->description = $description;
-        $operation->responses[200] = $response;
+        $operation->responses[$statusCode] = $response;
 
         $subContext = $extractionContext->createSubContext();
         $subContext->setParameter('direction', 'out');
 
         $extractionContext->getSwagger()->extract($type, $responseSchema, $subContext);
+    }
+
+    /**
+     * @param ReflectionMethod $method
+     * @return int
+     */
+    private function getStatusCode(ReflectionMethod $method)
+    {
+        $view = $this->viewExtractor->getView($method);
+        if ($view !== null && $view->getStatusCode() !== null) {
+            return $view->getStatusCode();
+        } else {
+            return 200;
+        }
     }
 }
