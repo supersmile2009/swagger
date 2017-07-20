@@ -212,7 +212,7 @@ class ExtendedReflectionClass extends \ReflectionClass
     {
         $useStatements = $this->getUseStatements();
         foreach ($useStatements as $useStatement) {
-            if ($useStatement['as'] === stripslashes($shortName) || strpos($useStatement['as'], $shortName) !== false) {
+            if ($useStatement['as'] === stripslashes($shortName) || substr($useStatement['as'], -strlen($shortName)) === $shortName) {
                 return $useStatement['class'];
             }
         }
