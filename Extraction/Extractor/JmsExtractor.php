@@ -100,7 +100,7 @@ class JmsExtractor implements ExtractorInterface
         if (isset($meta->discriminatorBaseClass)
             && $meta->discriminatorBaseClass !== $reflectionClass->getName()
         ) {
-            $schema->parentAlias = $this->typeSchemaExtractor->getAliasFor($meta->discriminatorBaseClass);
+            $schema->parentAlias = $this->typeSchemaExtractor->getAliasFor($reflectionClass->getParentClass()->getName());
         }
 
         foreach ($meta->propertyMetadata as $property => $item) {
