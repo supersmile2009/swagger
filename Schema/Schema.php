@@ -287,6 +287,27 @@ class Schema implements \ArrayAccess
     public $parentAlias;
 
     /**
+     * Declares this item to be deprecated.
+     * Usage of the declared operation should be refrained.
+     *
+     * @var boolean
+     *
+     * @JMS\Type("boolean")
+     * @JMS\Exclude(if="object.ref !== null")
+     */
+    public $deprecated = false;
+
+    /**
+     * Description of deprecation
+     *
+     * @var boolean
+     *
+     * @JMS\Type("string")
+     * @JMS\Exclude(if="object.ref !== null || object.deprecated !== true")
+     */
+    public $deprecationDescription;
+
+    /**
      * @JMS\PreSerialize()
      */
     public function preSerialize()

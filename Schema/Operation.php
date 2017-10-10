@@ -142,6 +142,16 @@ class Operation implements \ArrayAccess
     public $deprecated;
 
     /**
+     * Deprecation description
+     *
+     * @var boolean
+     *
+     * @JMS\Type("string")
+     * @JMS\Exclude(if="object.deprecated !== true")
+     */
+    public $deprecationDescription;
+
+    /**
      * A declaration of which security schemes are applied for this operation.
      * The list of values describes alternative security schemes that can be used
      * (that is, there is a logical OR between the security requirements).

@@ -132,6 +132,27 @@ class JmsExtractor implements ExtractorInterface
 
             $propertySchema->serializerGroups = $item->groups;
 
+            /** @var \ReflectionProperty $reflectionProperty */
+            $reflectionProperty = $item->reflection;
+            // Reflecion can be null when extracting VirtualProperty
+            if ($reflectionProperty !== null) {
+                $docComment = $reflectionProperty->getDocComment();
+                // Can be false if there is no doc block
+                if ($docComment !== false) {
+                    $factory = DocBlockFactory::createInstance();
+                    $docBlock = $factory->create($reflectionProperty->getDocComment());
+                    $deprecatedTags = $docBlock->getTagsByName('deprecated');
+                    if (empty($deprecatedTags) === false) {
+                        $propertySchema->deprecated = true;
+                        /** @var \phpDocumentor\Reflection\DocBlock\Tags\Deprecated $deprecatedTag */
+                        foreach ($deprecatedTags as $deprecatedTag) {
+                            $propertySchema->deprecationDescription .= $deprecatedTag->getDescription();
+                        }
+                    }
+                }
+            }
+
+
             $name = $this->namingStrategy->translateName($item);
             $schema->properties[$name] = $propertySchema;
 

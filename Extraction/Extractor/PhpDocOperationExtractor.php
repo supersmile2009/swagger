@@ -120,8 +120,13 @@ class PhpDocOperationExtractor implements ExtractorInterface
             }
         }
 
-        if ($docBlock->getTagsByName('deprecated')) {
+        $deprecatedTags = $docBlock->getTagsByName('deprecated');
+        if (empty($deprecatedTags) === false) {
             $operation->deprecated = true;
+            /** @var \phpDocumentor\Reflection\DocBlock\Tags\Deprecated $deprecatedTag */
+            foreach ($deprecatedTags as $deprecatedTag) {
+                $operation->deprecationDescription .= $deprecatedTag->getDescription();
+            }
         }
 
         $bodyParameter = null;
