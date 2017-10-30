@@ -97,10 +97,12 @@ class JmsExtractor implements ExtractorInterface
             $exclusionStrategies[] = new GroupsExclusionStrategy($schema->serializerGroups);
         }
         // If this is child class with discriminator map, store information about parent class alias
+        // and extract parent class
         if (isset($meta->discriminatorBaseClass)
             && $meta->discriminatorBaseClass !== $reflectionClass->getName()
         ) {
             $schema->parentAlias = $this->typeSchemaExtractor->getAliasFor($reflectionClass->getParentClass()->getName());
+            $this->extractTypeSchema($reflectionClass->getParentClass()->getName(), $subContext);
         }
 
         foreach ($meta->propertyMetadata as $property => $item) {
