@@ -3,7 +3,7 @@
 namespace Draw\Swagger\Extraction\Extractor;
 
 use Draw\Swagger\Extraction\ExtractionContext;
-use Draw\Swagger\Swagger;
+use Draw\Swagger\OpenApiGenerator;
 use JMS\Serializer\Annotation as JMS;
 use Draw\Swagger\Extraction\ExtractionImpossibleException;
 use Draw\Swagger\Schema\Schema;
@@ -81,7 +81,7 @@ class JmsExtractorTest extends TestCase
 
     public function getExtractionContext()
     {
-        $swagger = new Swagger();
+        $swagger = new OpenApiGenerator();
         $schema = $swagger->extract('{"swagger":"2.0","definitions":{}}');
 
         return new ExtractionContext($swagger, $schema);

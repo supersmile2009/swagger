@@ -3,17 +3,18 @@
 namespace Draw\Swagger\Schema;
 
 use Draw\Swagger\Schema\Traits\ArrayAccess;
+use Draw\Swagger\Schema\Traits\SpecificationExtension;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
 
 /**
- * @see https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md#headerObject
+ * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#headerObject
  *
  * @author Martin Poirier Theoret <mpoiriert@gmail.com>
  */
-class Header implements \ArrayAccess
+class Header implements SpecificationExtensionSupportInterface
 {
-    use ArrayAccess;
+    use SpecificationExtension;
 
     /**
      * A short description of the header.
@@ -79,9 +80,9 @@ class Header implements \ArrayAccess
      *
      * @see http://json-schema.org/latest/json-schema-validation.html#anchor101.
      *
-     * @var Mixed
+     * @var Any
      *
-     * @JMS\Type("Draw\Swagger\Schema\Mixed")
+     * @JMS\Type("Draw\Swagger\Schema\Any")
      */
     public $default;
 
@@ -185,9 +186,9 @@ class Header implements \ArrayAccess
     /**
      * @see http://json-schema.org/latest/json-schema-validation.html#anchor76
      *
-     * @var Mixed[]
+     * @var Any[]
      *
-     * @JMS\Type("array<Draw\Swagger\Schema\Mixed>")
+     * @JMS\Type("array<Draw\Swagger\Schema\Any>")
      */
     public $enum;
 
@@ -206,7 +207,7 @@ class Header implements \ArrayAccess
      */
     public function preSerialize()
     {
-        $this->default = Mixed::convert($this->default);
-        $this->enum = Mixed::convert($this->enum, true);
+        $this->default = Any::convert($this->default);
+        $this->enum = Any::convert($this->enum, true);
     }
 } 

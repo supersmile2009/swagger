@@ -4,7 +4,10 @@ namespace Draw\Swagger\Schema;
 
 use JMS\Serializer\Annotation as JMS;
 
-class PathParameter extends Parameter
+/**
+ * @author Martin Poirier Theoret <mpoiriert@gmail.com>
+ */
+class PathParameter extends BaseParameter
 {
     /**
      * The extending format for the previously mentioned type. See Data Type Formats for further details.

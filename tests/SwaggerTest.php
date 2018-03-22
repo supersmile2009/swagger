@@ -24,7 +24,7 @@ class SwaggerTest extends TestCase
      */
     public function testExtractSwaggerSchema($file)
     {
-        $swagger = new Swagger();
+        $swagger = new OpenApiGenerator();
 
         $schema = $swagger->extract(file_get_contents($file));
         $this->assertInstanceOf('Draw\Swagger\Schema\Swagger', $schema);

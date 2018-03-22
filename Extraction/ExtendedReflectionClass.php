@@ -191,15 +191,18 @@ class ExtendedReflectionClass extends \ReflectionClass
      * Check if class is using a class or an alias of a class.
      *
      * @param string $class
+     *
      * @return boolean
+     *
+     * @throws \RuntimeException
      */
     public function hasUseStatement($class)
     {
         $useStatements = $this->parseUseStatements();
 
         return
-            array_search($class, array_column($useStatements, 'class')) ||
-            array_search($class, array_column($useStatements, 'as'));
+            in_array($class, array_column($useStatements, 'class'), true) ||
+            in_array($class, array_column($useStatements, 'as'), true);
     }
 
     /**

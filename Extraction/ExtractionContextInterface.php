@@ -5,16 +5,18 @@ namespace Draw\Swagger\Extraction;
 interface ExtractionContextInterface
 {
     /**
-     * @return \Draw\Swagger\Swagger
+     * @return \Draw\Swagger\OpenApiGenerator
      */
     public function getSwagger();
 
     /**
-     * @return \Draw\Swagger\Schema\Swagger
+     * @return \Draw\Swagger\Schema\OpenApi
      */
     public function getRootSchema();
 
     /**
+     * @param string $name
+     *
      * @return boolean
      */
     public function hasParameter($name);

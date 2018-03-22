@@ -2,7 +2,10 @@
 
 namespace Draw\Swagger\Schema;
 
-class HeaderParameter extends Parameter
+/**
+ * @author Martin Poirier Theoret <mpoiriert@gmail.com>
+ */
+class HeaderParameter extends BaseParameter
 {
 
 }

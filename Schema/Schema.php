@@ -3,24 +3,17 @@
 namespace Draw\Swagger\Schema;
 
 use Draw\Swagger\Schema\Traits\ArrayAccess;
+use Draw\Swagger\Schema\Traits\SpecificationExtension;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @author Martin Poirier Theoret <mpoiriert@gmail.com>
- *
+ * @author Alexandr Zolotukhin <alex@alexandrz.com>
  */
-class Schema implements \ArrayAccess
+class Schema implements SpecificationExtensionSupportInterface
 {
-    use ArrayAccess;
-
-    /**
-     * @var string
-     *
-     * @JMS\Type("string")
-     * @JMS\Exclude(if="object.ref !== null")
-     */
-    public $format;
+    use SpecificationExtension;
 
     /**
      * @var string
@@ -31,20 +24,12 @@ class Schema implements \ArrayAccess
     public $title;
 
     /**
-     * @var string
+     * @var number
      *
-     * @JMS\Type("string")
+     * @JMS\Type("double")
      * @JMS\Exclude(if="object.ref !== null")
      */
-    public $description;
-
-    /**
-     * @var Mixed
-     *
-     * @JMS\Type("Draw\Swagger\Schema\Mixed")
-     * @JMS\Exclude(if="object.ref !== null")
-     */
-    public $default;
+    public $multipleOf;
 
     /**
      * @var number
@@ -160,9 +145,9 @@ class Schema implements \ArrayAccess
     public $required = [];
 
     /**
-     * @var Mixed[]
+     * @var Any[]
      *
-     * @JMS\Type("array<Draw\Swagger\Schema\Mixed>")
+     * @JMS\Type("array<Draw\Swagger\Schema\Any>")
      * @JMS\Exclude(if="object.ref !== null")
      */
     public $enum;
@@ -178,14 +163,6 @@ class Schema implements \ArrayAccess
     public $type;
 
     /**
-     * @var Schema
-     *
-     * @JMS\Type("Draw\Swagger\Schema\Schema")
-     * @JMS\Exclude(if="object.ref !== null")
-     */
-    public $items;
-
-    /**
      * @var Schema[]
      *
      * @JMS\Type("array<Draw\Swagger\Schema\Schema>")
@@ -197,7 +174,40 @@ class Schema implements \ArrayAccess
     /**
      * @var Schema[]
      *
-     * @JMS\Type("array<string,Draw\Swagger\Schema\Schema>")
+     * @JMS\Type("array<Draw\Swagger\Schema\Schema>")
+     * @JMS\SerializedName("oneOf")
+     * @JMS\Exclude(if="object.ref !== null")
+     */
+    public $oneOf;
+
+    /**
+     * @var Schema[]
+     *
+     * @JMS\Type("array<Draw\Swagger\Schema\Schema>")
+     * @JMS\SerializedName("anyOf")
+     * @JMS\Exclude(if="object.ref !== null")
+     */
+    public $anyOf;
+
+    /**
+     * @var Schema[]
+     *
+     * @JMS\Type("array<Draw\Swagger\Schema\Schema>")
+     * @JMS\SerializedName("not")
+     * @JMS\Exclude(if="object.ref !== null")
+     */
+    public $not;
+
+    /**
+     * @var Schema|Reference
+     *
+     * @JMS\Exclude(if="object.ref !== null")
+     */
+    public $items;
+
+    /**
+     * @var Schema[]|Reference[]
+     *
      * @JMS\Exclude(if="object.ref !== null")
      */
     public $properties;
@@ -212,6 +222,54 @@ class Schema implements \ArrayAccess
     public $additionalProperties;
 
     /**
+     * @var string
+     *
+     * @JMS\Type("string")
+     * @JMS\Exclude(if="object.ref !== null")
+     */
+    public $description;
+
+    /**
+     * @var string
+     *
+     * @JMS\Type("string")
+     * @JMS\Exclude(if="object.ref !== null")
+     */
+    public $format;
+
+    /**
+     * @var Any
+     *
+     * @JMS\Type("Draw\Swagger\Schema\Any")
+     * @JMS\Exclude(if="object.ref !== null")
+     */
+    public $default;
+
+    /**
+     * @var boolean
+     *
+     * @JMS\Type("boolean")
+     * @JMS\SerializedName("nullable")
+     * @JMS\Exclude(if="object.ref !== null")
+     */
+    public $nullable = false;
+
+    /**
+     * The discriminator attribute is legal only when using one of the composite keywords oneOf, anyOf, allOf.
+     *
+     * @var Discriminator
+     *
+     * @Assert\Expression(
+     *     expression="value === null || this.oneOf !== null || this.anyOf !== null || this.allOf !== null",
+     *     message="The discriminator attribute is legal only when using one of the composite keywords oneOf, anyOf, allOf."
+     * )
+     *
+     * @JMS\Type("Draw\Swagger\Schema\Discriminator")
+     * @JMS\Exclude(if="object.ref !== null")
+     */
+    public $discriminator;
+
+    /**
      * Relevant only for Schema "properties" definitions. Declares the property as "read only".
      * This means that it MAY be sent as part of a response but MUST NOT be sent as part of the request.
      * Properties marked as readOnly being true SHOULD NOT be in the required list of the defined schema.
@@ -224,6 +282,14 @@ class Schema implements \ArrayAccess
      * @JMS\Exclude(if="object.ref !== null")
      */
     public $readOnly;
+
+    /**
+     * @var boolean
+     *
+     * @JMS\Type("boolean")
+     * @JMS\Exclude(if="object.ref !== null")
+     */
+    public $writeOnly = false;
 
     /**
      * This MAY be used only on properties schemas.
@@ -252,13 +318,24 @@ class Schema implements \ArrayAccess
     /**
      * A free-form property to include a an example of an instance for this schema.
      *
-     * @var Mixed
-     * @JMS\Type("Draw\Swagger\Schema\Mixed")
+     * @var Any
+     * @JMS\Type("Draw\Swagger\Schema\Any")
      * @JMS\Exclude(if="object.ref !== null")
      */
     public $example;
 
     /**
+     * Specifies that a schema is deprecated and SHOULD be transitioned out of usage.
+     *
+     * @var boolean
+     *
+     * @JMS\Type("boolean")
+     * @JMS\Exclude(if="object.ref !== null")
+     */
+    public $deprecated = false;
+
+    /**
+     * @deprecated
      * @var string
      *
      * @JMS\Type("string")
@@ -267,6 +344,7 @@ class Schema implements \ArrayAccess
     public $ref;
 
     /**
+     * @deprecated
      * Serializer groups extracted from annotations
      *
      * @var array
@@ -277,6 +355,7 @@ class Schema implements \ArrayAccess
     public $serializerGroups;
 
     /**
+     * @deprecated
      * Parent class alias. Base class alias is stored here for child classes that use discriminator map.
      *
      * @var string
@@ -287,37 +366,35 @@ class Schema implements \ArrayAccess
     public $parentAlias;
 
     /**
-     * Declares this item to be deprecated.
-     * Usage of the declared operation should be refrained.
-     *
-     * @var boolean
-     *
-     * @JMS\Type("boolean")
-     * @JMS\Exclude(if="object.ref !== null")
-     */
-    public $deprecated = false;
-
-    /**
+     * @deprecated
      * Description of deprecation
      *
      * @var boolean
      *
      * @JMS\Type("string")
-     * @JMS\Exclude(if="object.ref !== null || object.deprecated !== true")
+     * @JMS\Exclude(if="object.ref !== null || object.deprecated === false")
      */
     public $deprecationDescription;
+
+    /**
+     * @deprecated
+     * Description of deprecation
+     *
+     * @var boolean
+     *
+     * @JMS\Type("string")
+     * @JMS\SerializedName("x-deprecationDescription")
+     * @JMS\Exclude(if="object.ref !== null || object.deprecated !== true")
+     */
+    public $xDeprecationDescription;
 
     /**
      * @JMS\PreSerialize()
      */
     public function preSerialize()
     {
-        $this->default = Mixed::convert($this->default);
-        $this->example = Mixed::convert($this->example);
-        $this->enum = Mixed::convert($this->enum, true);
+        $this->default = Any::convert($this->default);
+        $this->example = Any::convert($this->example);
+        $this->enum = Any::convert($this->enum, true);
     }
-
-    /*
-     *
-     */
-} 
+}

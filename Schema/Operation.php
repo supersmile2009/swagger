@@ -2,18 +2,17 @@
 
 namespace Draw\Swagger\Schema;
 
-use Draw\Swagger\Schema\Traits\ArrayAccess;
+use Draw\Swagger\Schema\Traits\SpecificationExtension;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
 
 /**
  * @author Martin Poirier Theoret <mpoiriert@gmail.com>
- *
- * @Annotation
+ * @author Alexandr Zolotukhin <alex@alexandrz.com>
  */
-class Operation implements \ArrayAccess
+class Operation implements SpecificationExtensionSupportInterface
 {
-    use ArrayAccess;
+    use SpecificationExtension;
 
     /**
      * A list of tags for API documentation control.
@@ -70,28 +69,6 @@ class Operation implements \ArrayAccess
     public $operationId;
 
     /**
-     * A list of MIME types the operation can consume.
-     * This overrides the [consumes](#swaggerConsumes) definition at the Swagger Object.
-     * An empty value MAY be used to clear the global definition. Value MUST be as described under Mime Types.
-     *
-     * @var string[]
-     *
-     * @JMS\Type("array<string>")
-     */
-    public $consumes;
-
-    /**
-     * A list of MIME types the operation can produce.
-     * This overrides the [produces](#swaggerProduces) definition at the Swagger Object.
-     * An empty value MAY be used to clear the global definition. Value MUST be as described under Mime Types.
-     *
-     * @var string[]
-     *
-     * @JMS\Type("array<string>")
-     */
-    public $produces;
-
-    /**
      * A list of parameters that are applicable for this operation.
      * If a parameter is already defined at the Path Item, the new definition will override it, but can never remove it.
      * The list MUST NOT include duplicated parameters.
@@ -105,10 +82,23 @@ class Operation implements \ArrayAccess
      *
      * @JMS\Type("array<Draw\Swagger\Schema\BaseParameter>")
      */
-    public $parameters = array();
+    public $parameters = [];
 
     /**
-     * The list of possible responses as they are returned from executing this operation.
+     * The request body applicable for this operation. The requestBody is only supported in HTTP methods
+     * where the HTTP 1.1 specification RFC7231 has explicitly defined semantics for request bodies.
+     * In other cases where the HTTP spec is vague, requestBody SHALL be ignored by consumers.
+     *
+     * @var RequestBody|Reference
+     *
+     * @Assert\Valid()
+     *
+     * @JMS\Type("Draw\Swagger\Schema\RequestBody")
+     */
+    public $requestBody;
+
+    /**
+     * REQUIRED. The list of possible responses as they are returned from executing this operation.
      *
      * @var Response[]
      *
@@ -117,18 +107,22 @@ class Operation implements \ArrayAccess
      *
      * @JMS\Type("array<string,Draw\Swagger\Schema\Response>")
      */
-    public $responses = array();
+    public $responses = [];
 
     /**
-     * The transfer protocol for the operation. Values MUST be from the list: "http", "https", "ws", "wss".
-     * The value overrides the Swagger Object schemes definition.
+     * A map of possible out-of band callbacks related to the parent operation.
+     * The key is a unique identifier for the Callback Object. Each value in the mapis a Callback Object
+     * that describes a request that may be initiated by the API provider and the expected responses.
+     * The key value used to identify the callback object is an expression, evaluated at runtime,
+     * that identifies a URL to use for the callback operation.
      *
-     * @var string[]
+     * @var Callback
      *
-     * @Assert\Choice({"http","https","ws","wss"}, multiple=true)
-     * @JMS\Type("array<string>")
+     * @Assert\Valid()
+     *
+     * @JMS\Type("array<string, Draw\Swagger\Schema\Callback>")
      */
-    public $schemes;
+    public $callbacks;
 
     /**
      * Declares this operation to be deprecated.
@@ -139,7 +133,18 @@ class Operation implements \ArrayAccess
      *
      * @JMS\Type("boolean")
      */
-    public $deprecated;
+    public $deprecated = false;
+
+    /**
+     * @deprecated
+     * Deprecation description
+     *
+     * @var boolean
+     *
+     * @JMS\Type("string")
+     * @JMS\Exclude(if="object.deprecated === false")
+     */
+    public $deprecationDescription;
 
     /**
      * Deprecation description
@@ -147,9 +152,10 @@ class Operation implements \ArrayAccess
      * @var boolean
      *
      * @JMS\Type("string")
-     * @JMS\Exclude(if="object.deprecated !== true")
+     * @JMS\SerializedName("x-DeprecationDescription")
+     * @JMS\Exclude(if="object.deprecated === false")
      */
-    public $deprecationDescription;
+    public $xDeprecationDescription;
 
     /**
      * A declaration of which security schemes are applied for this operation.
@@ -165,4 +171,15 @@ class Operation implements \ArrayAccess
      * @JMS\Type("array<Draw\Swagger\Schema\SecurityRequirement>")
      */
     public $security;
+
+    /**
+     * An alternative server array to service this operation.
+     * If an alternative server object is specified at the Path Item Object or Root level,
+     * it will be overridden by this value.
+     *
+     * @var Server[]
+     *
+     * @JMS\Type("array<Draw\Swagger\Schema\Server>")
+     */
+    public $servers;
 } 

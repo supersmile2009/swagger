@@ -3,17 +3,18 @@
 namespace Draw\Swagger\Schema;
 
 use Draw\Swagger\Schema\Traits\ArrayAccess;
+use Draw\Swagger\Schema\Traits\SpecificationExtension;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
 
 /**
- * @author Martin Poirier Theoret <mpoiriert@gmail.com>
+ * Contact information for the exposed API.
  *
- * @Annotation
+ * @author Martin Poirier Theoret <mpoiriert@gmail.com>
  */
-class Contact implements \ArrayAccess
+class Contact implements SpecificationExtensionSupportInterface
 {
-    use ArrayAccess;
+    use SpecificationExtension;
 
     /**
      * The identifying name of the contact person/organization.

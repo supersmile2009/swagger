@@ -3,17 +3,45 @@
 namespace Draw\Swagger\Schema;
 
 use Draw\Swagger\Schema\Traits\ArrayAccess;
+use Draw\Swagger\Schema\Traits\SpecificationExtension;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
+ * @author Alexandr Zolotukhin <alex@alexandrz.com>
  * @author Martin Poirier Theoret <mpoiriert@gmail.com>
- *
- * @Annotation
  */
-class PathItem implements \ArrayAccess
+class PathItem implements SpecificationExtensionSupportInterface, \ArrayAccess
 {
     use ArrayAccess;
+    use SpecificationExtension;
+
+    /**
+     * @var string
+     *
+     * @JMS\Type("string")
+     * @JMS\SerializedName("$ref")
+     */
+    public $ref;
+
+    /**
+     * An optional, string summary, intended to apply to all operations in this path.
+     *
+     * @var string
+     *
+     * @JMS\Type("string")
+     */
+    public $summary;
+
+    /**
+     * An optional string describing the host designated by the URL.
+     * CommonMark syntax MAY be used for rich text representation.
+     *
+     * @var string
+     *
+     * @JMS\Type("string")
+     */
+    public $description;
 
     /**
      * A definition of a GET operation on this path.
@@ -93,6 +121,26 @@ class PathItem implements \ArrayAccess
     public $patch;
 
     /**
+     * A definition of a TRACE operation on this path.
+     *
+     * @var Operation
+     *
+     * @Assert\Valid()
+     *
+     * @JMS\Type("Draw\Swagger\Schema\Operation")
+     */
+    public $trace;
+
+    /**
+     * An alternative server array to service all operations in this path.
+     *
+     * @var Server[]
+     *
+     * @JMS\Type("array<Draw\Swagger\Schema\Server>")
+     */
+    public $servers;
+
+    /**
      * A list of parameters that are applicable for all the operations described under this path.
      * These parameters can be overridden at the operation level, but cannot be removed there.
      * The list MUST NOT include duplicated parameters.
@@ -109,21 +157,16 @@ class PathItem implements \ArrayAccess
     public $parameters;
 
     /**
-     * @var string
-     *
-     * @JMS\Type("string")
-     * @JMS\SerializedName("$ref")
+     * @return Operation[]
      */
-    public $ref;
-
     public function getOperations()
     {
+        static $methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'];
         $operations = [];
-        foreach($this as $key => $value) {
-            if(!$value instanceof Operation) {
-                continue;
+        foreach($methods as $method) {
+            if ($this->{$method} instanceof Operation) {
+                $operations[$method] = $this->{$method};
             }
-            $operations[$key] = $value;
         }
 
         return $operations;

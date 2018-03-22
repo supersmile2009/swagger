@@ -2,24 +2,24 @@
 
 namespace Draw\Swagger\Extraction;
 
-use Draw\Swagger\Schema\Swagger as Schema;
-use Draw\Swagger\Swagger;
+use Draw\Swagger\Schema\OpenApi;
+use Draw\Swagger\OpenApiGenerator;
 
 class ExtractionContext implements ExtractionContextInterface
 {
     /**
-     * @var Schema
+     * @var OpenApi
      */
     private $rootSchema;
 
     /**
-     * @var Swagger
+     * @var OpenApiGenerator
      */
     private $swagger;
 
     private $parameters = array();
 
-    public function __construct(Swagger $swagger, Schema $rootSchema)
+    public function __construct(OpenApiGenerator $swagger, OpenApi $rootSchema)
     {
         $this->rootSchema = $rootSchema;
         $this->swagger = $swagger;

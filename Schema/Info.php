@@ -3,17 +3,16 @@
 namespace Draw\Swagger\Schema;
 
 use Draw\Swagger\Schema\Traits\ArrayAccess;
+use Draw\Swagger\Schema\Traits\SpecificationExtension;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
 
 /**
  * @author Martin Poirier Theoret <mpoiriert@gmail.com>
- *
- * @Annotation
  */
-class Info implements \ArrayAccess
+class Info implements SpecificationExtensionSupportInterface
 {
-    use ArrayAccess;
+    use SpecificationExtension;
 
     /**
      * The title of the application.
@@ -77,4 +76,4 @@ class Info implements \ArrayAccess
      * @JMS\Type("string")
      */
     public $version;
-} 
+}

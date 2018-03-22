@@ -6,7 +6,7 @@ use Draw\Swagger\Extraction\ExtractionContext;
 use Draw\Swagger\Extraction\ExtractionImpossibleException;
 use Draw\Swagger\Schema\Operation;
 use Draw\Swagger\Schema\PathItem;
-use Draw\Swagger\Swagger;
+use Draw\Swagger\OpenApiGenerator;
 use PHPUnit\Framework\TestCase;
 
 class PhpDocOperationExtractorTest extends TestCase
@@ -70,7 +70,7 @@ class PhpDocOperationExtractorTest extends TestCase
 
     public function getExtractionContext()
     {
-        $swagger = new Swagger();
+        $swagger = new OpenApiGenerator();
         $schema = $swagger->extract('{"swagger":"2.0","definitions":{}}');
 
         return new ExtractionContext($swagger, $schema);

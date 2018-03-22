@@ -3,16 +3,19 @@
 namespace Draw\Swagger\Schema;
 
 use Draw\Swagger\Schema\Traits\ArrayAccess;
+use Draw\Swagger\Schema\Traits\SpecificationExtension;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
 
 /**
  * @Annotation
  * @Target({"METHOD"})
+ *
+ * @author Martin Poirier Theoret <mpoiriert@gmail.com>
  */
-class Tag implements \ArrayAccess
+class Tag implements SpecificationExtensionSupportInterface
 {
-    use ArrayAccess;
+    use SpecificationExtension;
 
     /**
      * The name of the tag.

@@ -2,13 +2,11 @@
 
 namespace Draw\Swagger\Extraction\Extractor;
 
-
 use Doctrine\Common\Annotations\Reader;
 use Draw\Swagger\Extraction\ExtractionContextInterface;
 use Draw\Swagger\Extraction\ExtractorInterface;
-use Draw\Swagger\Schema\Operation as SupportedTarget;
+use Draw\Swagger\Schema\Operation;
 use Draw\Swagger\Schema\Tag;
-use ReflectionMethod as SupportedSource;
 
 class SwaggerTagExtractor implements ExtractorInterface
 {
@@ -25,18 +23,18 @@ class SwaggerTagExtractor implements ExtractorInterface
     /**
      * Return if the extractor can extract the requested data or not.
      *
-     * @param SupportedSource $source
-     * @param SupportedTarget $target
+     * @param \ReflectionMethod $source
+     * @param Operation $target
      * @param ExtractionContextInterface $extractionContext
      * @return boolean
      */
     public function canExtract($source, $target, ExtractionContextInterface $extractionContext)
     {
-        if (!$source instanceof SupportedSource) {
+        if (!$source instanceof \ReflectionMethod) {
             return false;
         }
 
-        if (!$target instanceof SupportedTarget) {
+        if (!$target instanceof Operation) {
             return false;
         }
 
@@ -49,15 +47,15 @@ class SwaggerTagExtractor implements ExtractorInterface
      * The system is a incrementing extraction system. A extractor can be call before you and you must complete the
      * extraction.
      *
-     * @param SupportedSource $source
-     * @param SupportedTarget $target
+     * @param \ReflectionMethod $method
+     * @param Operation $operation
      * @param ExtractionContextInterface $extractionContext
      */
-    public function extract($source, $target, ExtractionContextInterface $extractionContext)
+    public function extract($method, &$operation, ExtractionContextInterface $extractionContext)
     {
-        foreach($this->annotationReader->getMethodAnnotations($source) as $annotation) {
+        foreach($this->annotationReader->getMethodAnnotations($method) as $annotation) {
             if($annotation instanceof Tag) {
-                $target->tags[] = $annotation->name;
+                $operation->tags[] = $annotation->name;
             }
         }
     }

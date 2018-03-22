@@ -3,17 +3,20 @@
 namespace Draw\Swagger\Schema;
 
 use Draw\Swagger\Schema\Traits\ArrayAccess;
+use Draw\Swagger\Schema\Traits\SpecificationExtension;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
 
 /**
- * @author Martin Poirier Theoret <mpoiriert@gmail.com>
+ * License information for the exposed API.
  *
- * @Annotation
+ * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#licenseObject
+ *
+ * @author Martin Poirier Theoret <mpoiriert@gmail.com>
  */
-class License implements \ArrayAccess
+class License implements SpecificationExtensionSupportInterface
 {
-    use ArrayAccess;
+    use SpecificationExtension;
 
     /**
      * The license name used for the API.
@@ -34,4 +37,4 @@ class License implements \ArrayAccess
      * @JMS\Type("string")
      */
     public $url;
-} 
+}

@@ -30,7 +30,7 @@ class SwaggerSchemaExtractorTest extends TestCase
      */
     public function testCanExtract($source, $type, $expected)
     {
-        $extractor = new SwaggerSchemaExtractor(SerializerBuilder::create()->build());
+        $extractor = new OpenApiJsonSchemaExtractor(SerializerBuilder::create()->build());
         $context = $this->getMock('Draw\Swagger\Extraction\ExtractionContextInterface');
 
         $this->assertSame($expected, $extractor->canExtract($source, $type, $context));

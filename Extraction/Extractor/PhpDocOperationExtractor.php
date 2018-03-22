@@ -7,8 +7,11 @@ use Draw\Swagger\Extraction\ExtractionContextInterface;
 use Draw\Swagger\Extraction\ExtractionImpossibleException;
 use Draw\Swagger\Extraction\ExtractorInterface;
 use Draw\Swagger\Schema\BodyParameter;
+use Draw\Swagger\Schema\MediaType;
 use Draw\Swagger\Schema\Operation;
 use Draw\Swagger\Schema\QueryParameter;
+use Draw\Swagger\Schema\Reference;
+use Draw\Swagger\Schema\RequestBody;
 use Draw\Swagger\Schema\Response;
 use Draw\Swagger\Schema\Schema;
 use Draw\SwaggerBundle\Extractor\FOSRestViewOperationExtractor;
@@ -65,8 +68,9 @@ class PhpDocOperationExtractor implements ExtractorInterface
      *
      * @throws ExtractionImpossibleException
      * @return void
+     * @throws \ReflectionException
      */
-    public function extract($method, $operation, ExtractionContextInterface $extractionContext)
+    public function extract($method, &$operation, ExtractionContextInterface $extractionContext)
     {
         if (!$this->canExtract($method, $operation, $extractionContext)) {
             throw new ExtractionImpossibleException();
@@ -103,7 +107,7 @@ class PhpDocOperationExtractor implements ExtractorInterface
                 $i = 1;
                 $count = count($types);
                 foreach ($types as $actualType) {
-                    $actualType = $this->convertTypeToFQCN($method, $actualType);
+                    $actualType = $this->convertType($method, $actualType);
                     // We want to exclude specific types, leave only one and generate response for it
                     // But if all response types are excluded, we want to generate generic 200 response
                     if ($this->shouldSkipType($actualType)) {
@@ -125,17 +129,17 @@ class PhpDocOperationExtractor implements ExtractorInterface
             $operation->deprecated = true;
             /** @var \phpDocumentor\Reflection\DocBlock\Tags\Deprecated $deprecatedTag */
             foreach ($deprecatedTags as $deprecatedTag) {
-                $operation->deprecationDescription .= $deprecatedTag->getDescription();
+                $operation->setCustomProperty(
+                    'deprecationDescription',
+                    $operation->getCustomProperty('deprecationDescription').$deprecatedTag->getDescription()
+                );
             }
         }
 
-        $bodyParameter = null;
-
-        foreach ($operation->parameters as $parameter) {
-            if ($parameter instanceof BodyParameter) {
-                $bodyParameter = $parameter;
-                break;
-            }
+        /** @var RequestBody $requestBody */
+        $requestBody = $operation->requestBody;
+        if ($requestBody instanceof Reference) {
+            throw new ExtractionImpossibleException('References in request body aren\'t currently supported.');
         }
 
         /** @var \phpDocumentor\Reflection\DocBlock\Tags\Param $paramTag */
@@ -145,38 +149,43 @@ class PhpDocOperationExtractor implements ExtractorInterface
             /** @var QueryParameter $parameter */
             $parameter = null;
             foreach ($operation->parameters as $existingParameter) {
-                if ($existingParameter->name == $parameterName) {
+                if ($existingParameter->name === $parameterName) {
                     $parameter = $existingParameter;
                     break;
                 }
             }
 
-            if (!is_null($parameter)) {
-                if (!$parameter->description) {
-                    $parameter->description = $paramTag->getDescription();
+            if (null !== $parameter) {
+                if ($parameter->description === null) {
+                    $parameter->description = $paramTag->getDescription() !== null ? $paramTag->getDescription()->__toString() : null;
+                }
+                if ($parameter->schema === null) {
+                    $parameter->schema = new Schema();
                 }
 
-                if (!$parameter->type) {
-                    $parameter->type = $this->convertTypeToFQCN($method, (string)$paramTag->getType());
+                if ($parameter->schema->type === null) {
+                    $this->extractType(
+                        $this->convertType($method, (string)$paramTag->getType()),
+                        $parameter->schema,
+                        $extractionContext
+                    );
                 }
                 continue;
             }
 
-            if (!is_null($bodyParameter)) {
-                /* @var BodyParameter $bodyParameter */
-                if (isset($bodyParameter->schema->properties[$parameterName])) {
-                    $parameter = $bodyParameter->schema->properties[$parameterName];
+            if (null !== $requestBody) {
+                if (isset($requestBody->content['application/json']->schema->properties[$parameterName])) {
+                    $parameter = $requestBody->content['application/json']->schema->properties[$parameterName];
 
                     if (!$parameter->description) {
                         $parameter->description = $paramTag->getDescription();
                     }
 
                     if (!$parameter->type) {
-                        $subContext = $extractionContext->createSubContext();
-                        $subContext->setParameter('direction', 'in');
-                        $extractionContext->getSwagger()->extract(
-                            $this->convertTypeToFQCN($method, (string)$paramTag->getType()),
-                            $parameter, $subContext
+                        $this->extractType(
+                            $this->convertType($method, (string)$paramTag->getType()),
+                            $parameter,
+                            $extractionContext
                         );
                     }
 
@@ -208,6 +217,24 @@ class PhpDocOperationExtractor implements ExtractorInterface
         return true;
     }
 
+    /**
+     * @param string $type
+     * @param Schema $target
+     * @param ExtractionContextInterface $extractionContext
+     *
+     * @throws ExtractionImpossibleException
+     */
+    private function extractType($type, $target, $extractionContext)
+    {
+        $subContext = $extractionContext->createSubContext();
+        $subContext->setParameter('direction', 'in');
+        $extractionContext->getSwagger()->extract(
+            $type,
+            $target,
+            $subContext
+        );
+    }
+
     private function getExceptionInformation(\Exception $exception)
     {
         foreach ($this->exceptionResponseCodes as $class => $information) {
@@ -227,9 +254,11 @@ class PhpDocOperationExtractor implements ExtractorInterface
     /**
      * @param ReflectionMethod $method
      * @param string $type
+     *
      * @return string
+     * @throws \ReflectionException
      */
-    private function convertTypeToFQCN($method, $type)
+    private function convertType($method, $type)
     {
         $isArray = false;
         $type = trim($type);
@@ -237,12 +266,15 @@ class PhpDocOperationExtractor implements ExtractorInterface
             $isArray = true;
             $type = trim($type, '[]');
         }
-        if (!class_exists($type)) {
+
+        if (null !== $primitiveType = TypeSchemaExtractor::convertType($type)) {
+            $type = $primitiveType['type'];
+        } elseif (!class_exists($type)) {
             $reflectionClass = new ExtendedReflectionClass($method->getDeclaringClass()->getName());
             $type = $reflectionClass->getFQCN($type);
         }
         if ($isArray === true) {
-            $type = $type . '[]';
+            $type .= '[]';
         }
         return $type;
     }
@@ -255,7 +287,7 @@ class PhpDocOperationExtractor implements ExtractorInterface
      */
     private function shouldSkipType($type)
     {
-        return in_array($type, $this->excludedReturnTypes);
+        return in_array($type, $this->excludedReturnTypes, true);
     }
 
     /**
@@ -270,14 +302,15 @@ class PhpDocOperationExtractor implements ExtractorInterface
     private function generateResponse($operation, $extractionContext, $statusCode = 200, $description = 'Generic 200 response', $type = 'test')
     {
         $response = new Response();
-        $response->schema = $responseSchema = new Schema();
+        $response->content['application/json'] = $mediaType = new MediaType();
+        $mediaType->schema = new Schema();
         $response->description = $description;
         $operation->responses[$statusCode] = $response;
 
         $subContext = $extractionContext->createSubContext();
         $subContext->setParameter('direction', 'out');
 
-        $extractionContext->getSwagger()->extract($type, $responseSchema, $subContext);
+        $extractionContext->getSwagger()->extract($type, $mediaType->schema, $subContext);
     }
 
     /**

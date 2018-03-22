@@ -9,6 +9,7 @@ use JMS\Serializer\Annotation as JMS;
 
 /**
  * @author Martin Poirier Theoret <mpoiriert@gmail.com>
+ * @author Alexandr Zolotukhin <alex@alexandrz.com>
  */
 class SecurityRequirement implements \ArrayAccess
 {
@@ -18,15 +19,20 @@ class SecurityRequirement implements \ArrayAccess
 
     /**
      * Each name must correspond to a security scheme which is declared in the Security Definitions.
-     * If the security scheme is of type "oauth2", then the value is a list of scope names required for the execution.
-     * For other security scheme types, the array MUST be empty.
+     * If the security scheme is of type "oauth2" or "openIdConnect", then the value is a list of scope names
+     * required for the execution. For other security scheme types, the array MUST be empty.
      *
-     * @param $attribute
+     * @param $name
      * @param string[] $value
      */
     public function __set($name, $value)
     {
         $this->data[$name] = $value;
+    }
+
+    public function __isset($name)
+    {
+        return isset($this->data[$name]);
     }
 
     public function __get($name)

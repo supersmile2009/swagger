@@ -27,6 +27,11 @@ abstract class ConstraintExtractor implements ConstraintExtractorInterface
 
     abstract public function extractConstraint(Constraint $constraint, ConstraintExtractionContext $context);
 
+    /**
+     * @param Constraint $constraint
+     *
+     * @throws \InvalidArgumentException
+     */
     protected function assertSupportConstraint(Constraint $constraint)
     {
         if (!$this->supportConstraint($constraint)) {
@@ -58,17 +63,17 @@ abstract class ConstraintExtractor implements ConstraintExtractorInterface
             return false;
         }
 
-        return count($this->getPropertiesConstraints($source, $type, $extractionContext->getParameter('validation-groups'))) > 0;
+        return \count($this->getPropertiesConstraints($source, $type, $extractionContext->getParameter('validation-groups', []))) > 0;
     }
 
-    private function getPropertiesConstraints(ReflectionClass $reflectionClass, Schema $schema, array $groups = null)
+    private function getPropertiesConstraints(ReflectionClass $reflectionClass, Schema $schema, array $groups = [])
     {
         $class = $reflectionClass->getName();
         if (!$this->metadataFactory->hasMetadataFor($class)) {
             return array();
         }
 
-        if(is_null($groups)) {
+        if(empty($groups)) {
             $groups = array(Constraint::DEFAULT_GROUP);
         }
 
@@ -124,18 +129,20 @@ abstract class ConstraintExtractor implements ConstraintExtractorInterface
      * @param ReflectionClass $source
      * @param Schema $target
      * @param ExtractionContextInterface $extractionContext
+     *
+     * @throws ExtractionImpossibleException
      */
-    public function extract($source, $target, ExtractionContextInterface $extractionContext)
+    public function extract($source, &$target, ExtractionContextInterface $extractionContext)
     {
         if (!$this->canExtract($source, $target, $extractionContext)) {
-            throw new ExtractionImpossibleException();
+            throw new ExtractionImpossibleException('Trying to extract unsupported data.');
         }
 
         $constraintExtractionContext = new ConstraintExtractionContext();
         $constraintExtractionContext->classSchema = $target;
-        $constraintExtractionContext->context = "property";
+        $constraintExtractionContext->context = 'property';
 
-        $validationGroups = $extractionContext->getParameter('validation-groups');
+        $validationGroups = $extractionContext->getParameter('validation-groups', []);
 
         $propertyConstraints = $this->getPropertiesConstraints($source, $target, $validationGroups);
 

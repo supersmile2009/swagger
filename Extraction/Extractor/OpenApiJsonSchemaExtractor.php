@@ -5,10 +5,16 @@ namespace Draw\Swagger\Extraction\Extractor;
 use Draw\Swagger\Extraction\ExtractionContextInterface;
 use Draw\Swagger\Extraction\ExtractionImpossibleException;
 use Draw\Swagger\Extraction\ExtractorInterface;
-use Draw\Swagger\Schema\Swagger;
+use Draw\Swagger\Schema\OpenApi;
 use JMS\Serializer\Serializer;
 
-class SwaggerSchemaExtractor implements ExtractorInterface
+/**
+ * Class OpenApiJsonSchemaExtractor
+ *
+ * Deserializes a JSON OpenAPI spec to instance of OpenApi class.
+ * Is used to setup an initial default fields from predefined JSON.
+ */
+class OpenApiJsonSchemaExtractor implements ExtractorInterface
 {
     /**
      * @var Serializer
@@ -27,22 +33,22 @@ class SwaggerSchemaExtractor implements ExtractorInterface
      * extraction.
      *
      * @param string $source
-     * @param Swagger $swagger
+     * @param OpenApi $openApi
      * @param ExtractionContextInterface $extractionContext
      *
      * @throws ExtractionImpossibleException
      * @return void
      */
-    public function extract($source, $swagger, ExtractionContextInterface $extractionContext)
+    public function extract($source, &$openApi, ExtractionContextInterface $extractionContext)
     {
-        if (!$this->canExtract($source, $swagger, $extractionContext)) {
+        if (!$this->canExtract($source, $openApi, $extractionContext)) {
             throw new ExtractionImpossibleException();
         }
 
-        $result = $this->serializer->deserialize($source, get_class($swagger), 'json');
+        $result = $this->serializer->deserialize($source, \get_class($openApi), 'json');
 
         foreach ($result as $key => $value) {
-            $swagger->{$key} = $value;
+            $openApi->{$key} = $value;
         }
     }
 
@@ -65,7 +71,7 @@ class SwaggerSchemaExtractor implements ExtractorInterface
             return false;
         }
 
-        if (!$type instanceof Swagger) {
+        if (!$type instanceof OpenApi) {
             return false;
         }
 
@@ -74,11 +80,11 @@ class SwaggerSchemaExtractor implements ExtractorInterface
             return false;
         }
 
-        if (!array_key_exists('swagger', $schema)) {
+        if (!array_key_exists('openapi', $schema)) {
             return false;
         }
 
-        if ($schema['swagger'] != '2.0') {
+        if (strpos($schema['openapi'], '3.') !== 0) {
             return false;
         }
 

@@ -3,12 +3,16 @@
 namespace Draw\Swagger\Schema;
 
 use Draw\Swagger\Schema\Traits\ArrayAccess;
+use Draw\Swagger\Schema\Traits\SpecificationExtension;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class Xml implements \ArrayAccess
+/**
+ * @author Martin Poirier Theoret <mpoiriert@gmail.com>
+ */
+class Xml implements SpecificationExtensionSupportInterface
 {
-    use ArrayAccess;
+    use SpecificationExtension;
 
     /**
      * Replaces the name of the element/attribute used for the described schema property.

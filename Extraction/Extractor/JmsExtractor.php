@@ -7,6 +7,7 @@ use Draw\Swagger\Extraction\ExtractionContextInterface;
 use Draw\Swagger\Extraction\ExtractionImpossibleException;
 use Draw\Swagger\Extraction\ExtractorInterface;
 use Draw\Swagger\Schema\Schema;
+use Draw\Swagger\OpenApiGenerator;
 use JMS\Serializer\Exclusion\GroupsExclusionStrategy;
 use JMS\Serializer\Metadata\VirtualPropertyMetadata;
 use JMS\Serializer\Naming\PropertyNamingStrategyInterface;
@@ -80,7 +81,7 @@ class JmsExtractor implements ExtractorInterface
      *
      * @throws ExtractionImpossibleException
      */
-    public function extract($reflectionClass, $schema, ExtractionContextInterface $extractionContext)
+    public function extract($reflectionClass, &$schema, ExtractionContextInterface $extractionContext)
     {
         if (!$this->canExtract($reflectionClass, $schema, $extractionContext)) {
             throw new ExtractionImpossibleException();
@@ -93,15 +94,18 @@ class JmsExtractor implements ExtractorInterface
 
         $subContext = $extractionContext->createSubContext();
 
-        if ($schema->serializerGroups !== null) {
-            $exclusionStrategies[] = new GroupsExclusionStrategy($schema->serializerGroups);
+        if (null !== $schema->getCustomProperty('serializerGroups')) {
+            $exclusionStrategies[] = new GroupsExclusionStrategy($schema->getCustomProperty('serializerGroups')->getData());
         }
         // If this is child class with discriminator map, store information about parent class alias
         // and extract parent class
         if (isset($meta->discriminatorBaseClass)
             && $meta->discriminatorBaseClass !== $reflectionClass->getName()
         ) {
-            $schema->parentAlias = $this->typeSchemaExtractor->getAliasFor($reflectionClass->getParentClass()->getName());
+            $schema->setCustomProperty(
+                'parentAlias',
+                $this->typeSchemaExtractor->getAliasFor($reflectionClass->getParentClass()->getName())
+            );
             $this->extractTypeSchema($reflectionClass->getParentClass()->getName(), $subContext);
         }
 
@@ -117,9 +121,9 @@ class JmsExtractor implements ExtractorInterface
                 continue;
             }
 
-            if ($type = $this->getNestedTypeInArray($item) === 'stdClass') {
+            if ('object' === $type = $this->getNestedTypeInArray($item)) {
                 $propertySchema = new Schema();
-                $propertySchema->type = 'stdClass';
+                $propertySchema->type = 'object';
             } elseif ($type = $this->getNestedTypeInArray($item)) {
                 $propertySchema = new Schema();
                 $propertySchema->type = 'array';
@@ -128,11 +132,14 @@ class JmsExtractor implements ExtractorInterface
                 $propertySchema = $this->extractTypeSchema($item->type['name'], $subContext);
             }
 
+            $propertySchema = OpenApiGenerator::resolveReference($propertySchema, $extractionContext);
+            $propertySchema->setCustomProperty('serializerGroups', $item->groups);
+
             if ($item->readOnly) {
                 $propertySchema->readOnly = true;
             }
 
-            $propertySchema->serializerGroups = $item->groups;
+            $propertySchema->setCustomProperty('serializerGroups', $item->groups);
 
             /** @var \ReflectionProperty $reflectionProperty */
             $reflectionProperty = $item->reflection;
@@ -148,7 +155,10 @@ class JmsExtractor implements ExtractorInterface
                         $propertySchema->deprecated = true;
                         /** @var \phpDocumentor\Reflection\DocBlock\Tags\Deprecated $deprecatedTag */
                         foreach ($deprecatedTags as $deprecatedTag) {
-                            $propertySchema->deprecationDescription .= $deprecatedTag->getDescription();
+                            $propertySchema->setCustomProperty(
+                                'deprecationDescription',
+                                $propertySchema->getCustomProperty('deprecationDescription').$deprecatedTag->getDescription()
+                            );
                         }
                     }
                 }
@@ -172,7 +182,8 @@ class JmsExtractor implements ExtractorInterface
 
     private function extractTypeSchema($type, ExtractionContext $extractionContext)
     {
-        $extractionContext->getSwagger()->extract($type, $schema = new Schema(), $extractionContext);
+        $schema = new Schema();
+        $extractionContext->getSwagger()->extract($type, $schema, $extractionContext);
 
         return $schema;
     }
@@ -190,7 +201,7 @@ class JmsExtractor implements ExtractorInterface
             if (isset($item->type['params'][1]['name'])) {
                 // E.g. array<string, MyNamespaceMyObject>
                 // All assoc arrays in JS are JSONs, not arrays. stdClass corresponds to JSON.
-                return 'stdClass';
+                return 'object';
             }
             if (isset($item->type['params'][0]['name'])) {
                 // E.g. array<MyNamespaceMyObject>

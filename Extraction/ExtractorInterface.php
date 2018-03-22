@@ -21,8 +21,8 @@ interface ExtractorInterface
      * extraction.
      *
      * @param mixed $source
-     * @param mixed $target
+     * @param mixed &$target Passed as reference to allow replace original target at runtime (e. g. replace Schema with Reference).
      * @param ExtractionContextInterface $extractionContext
      */
-    public function extract($source, $target, ExtractionContextInterface $extractionContext);
+    public function extract($source, &$target, ExtractionContextInterface $extractionContext);
 }

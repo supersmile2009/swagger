@@ -2,9 +2,9 @@
 
 namespace Draw\Swagger;
 
-use Draw\Swagger\Schema\VendorExtensionSupportInterface;
-use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
+use Draw\Swagger\Schema\SpecificationExtensionSupportInterface;
 use JMS\Serializer\EventDispatcher\Events;
+use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\ObjectEvent;
 use JMS\Serializer\EventDispatcher\PreDeserializeEvent;
 use JMS\Serializer\EventDispatcher\PreSerializeEvent;
@@ -13,11 +13,11 @@ class JMSSerializerListener implements EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {
-        return array(
-            array('event' => Events::PRE_SERIALIZE, 'method' => 'onPreSerialize'),
-            array('event' => Events::PRE_DESERIALIZE, 'method' => 'onPreDeserialize'),
-            array('event' => Events::POST_SERIALIZE, 'method' => 'onPostSerialize')
-        );
+        return [
+            ['event' => Events::PRE_SERIALIZE, 'method' => 'onPreSerialize'],
+            ['event' => Events::PRE_DESERIALIZE, 'method' => 'onPreDeserialize'],
+            ['event' => Events::POST_SERIALIZE, 'method' => 'onPostSerialize'],
+        ];
     }
 
     /**
@@ -40,22 +40,22 @@ class JMSSerializerListener implements EventSubscriberInterface
 
         $type = $event->getType();
 
-        if(!class_exists($type['name'])) {
-           return;
-        }
-
-        if(!is_array($data)) {
+        if (!class_exists($type['name'])) {
             return;
         }
 
-        $vendorData = array();
+        if (!is_array($data)) {
+            return;
+        }
 
-        foreach($data as $key => $value) {
-            if(!is_string($key)) {
+        $vendorData = [];
+
+        foreach ($data as $key => $value) {
+            if (!is_string($key)) {
                 continue;
             }
 
-            if(strpos($key,'x-') !== 0) {
+            if (strpos($key, 'x-') !== 0) {
                 continue;
             }
 
@@ -63,12 +63,12 @@ class JMSSerializerListener implements EventSubscriberInterface
             $vendorData[$key] = $value;
         }
 
-        if(!$vendorData) {
+        if (!$vendorData) {
             return;
         }
 
         $reflectionClass = new \ReflectionClass($type['name']);
-        if(!$reflectionClass->implementsInterface('Draw\Swagger\Schema\VendorExtensionSupportInterface')) {
+        if (!$reflectionClass->implementsInterface('Draw\Swagger\Schema\SpecificationExtensionSupportInterface')) {
             return;
         }
 
@@ -80,12 +80,14 @@ class JMSSerializerListener implements EventSubscriberInterface
     {
         $object = $event->getObject();
 
-        $visitor = $event->getVisitor();
         /* @var $visitor \JMS\Serializer\JsonSerializationVisitor */
+        $visitor = $event->getVisitor();
 
-        if($object instanceof VendorExtensionSupportInterface) {
-            foreach($object->getVendorData() as $key => $value) {
-                $visitor->addData($key, $value->data);
+        if ($object instanceof SpecificationExtensionSupportInterface) {
+            foreach ($object->getCustomProperties() as $key => $value) {
+                if ($value !== null) {
+                    $visitor->addData("x-{$key}", $value->getData());
+                }
             }
         }
     }
