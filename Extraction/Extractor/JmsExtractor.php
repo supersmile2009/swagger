@@ -95,7 +95,7 @@ class JmsExtractor implements ExtractorInterface
         $subContext = $extractionContext->createSubContext();
 
         if (null !== $schema->getCustomProperty('serializerGroups')) {
-            $exclusionStrategies[] = new GroupsExclusionStrategy($schema->getCustomProperty('serializerGroups')->getData());
+            $exclusionStrategies[] = new GroupsExclusionStrategy($schema->getCustomProperty('serializerGroups'));
         }
         // If this is child class with discriminator map, store information about parent class alias
         // and extract parent class

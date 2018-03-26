@@ -2,14 +2,17 @@
 
 namespace Draw\Swagger\Schema;
 
+use Draw\Swagger\Schema\Traits\ClassPropertiesArrayAccess;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @author Alexandr Zolotukhin <alex@alexandrz.com>
  */
-class Discriminator
+class Discriminator implements \ArrayAccess
 {
+    use ClassPropertiesArrayAccess;
+
     /**
      * REQUIRED. The name of the property in the payload that will hold the discriminator value.
      *

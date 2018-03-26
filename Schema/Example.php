@@ -2,7 +2,7 @@
 
 namespace Draw\Swagger\Schema;
 
-use Draw\Swagger\Schema\Any;
+use Draw\Swagger\Schema\Traits\ClassPropertiesArrayAccess;
 use Draw\Swagger\Schema\Traits\SpecificationExtension;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -10,9 +10,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @author Alexandr Zolotukhin <alex@alexandrz.com>
  */
-class Example implements SpecificationExtensionSupportInterface
+class Example implements SpecificationExtensionSupportInterface, \ArrayAccess
 {
     use SpecificationExtension;
+    use ClassPropertiesArrayAccess;
 
     /**
      * @var string

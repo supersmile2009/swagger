@@ -2,7 +2,7 @@
 
 namespace Draw\Swagger\Schema;
 
-use Draw\Swagger\Schema\Header;
+use Draw\Swagger\Schema\Traits\ClassPropertiesArrayAccess;
 use Draw\Swagger\Schema\Traits\SpecificationExtension;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -10,9 +10,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @author Alexandr Zolotukhin <alex@alexandrz.com>
  */
-class Encoding implements SpecificationExtensionSupportInterface
+class Encoding implements SpecificationExtensionSupportInterface, \ArrayAccess
 {
     use SpecificationExtension;
+    use ClassPropertiesArrayAccess;
 
     /**
      * The Content-Type for encoding a specific property.

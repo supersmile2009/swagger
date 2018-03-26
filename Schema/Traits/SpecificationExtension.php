@@ -19,7 +19,7 @@ trait SpecificationExtension
 
     public function setCustomProperties(array $customProperties)
     {
-        $this->customProperties = Any::convert($customProperties, true);
+        $this->customProperties = $customProperties;
     }
 
     public function getCustomProperties()
@@ -29,7 +29,7 @@ trait SpecificationExtension
 
     public function setCustomProperty($key, $value)
     {
-        $this->customProperties[$key] = Any::convert($value);
+        $this->customProperties[$key] = $value;
     }
 
     /**

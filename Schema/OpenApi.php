@@ -2,11 +2,7 @@
 
 namespace Draw\Swagger\Schema;
 
-use Draw\Swagger\Schema\ExternalDocumentation;
-use Draw\Swagger\Schema\Info;
-use Draw\Swagger\Schema\SecurityRequirement;
-use Draw\Swagger\Schema\Tag;
-use Draw\Swagger\Schema\Traits\ArrayAccess;
+use Draw\Swagger\Schema\Traits\ClassPropertiesArrayAccess;
 use Draw\Swagger\Schema\Traits\SpecificationExtension;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
@@ -14,9 +10,10 @@ use JMS\Serializer\Annotation as JMS;
 /**
  * @author Alexandr Zolotukhin <alex@alexandrz.com>
  */
-class OpenApi implements SpecificationExtensionSupportInterface
+class OpenApi implements SpecificationExtensionSupportInterface, \ArrayAccess
 {
     use SpecificationExtension;
+    use ClassPropertiesArrayAccess;
 
     /**
      * REQUIRED. This string MUST be the semantic version number of the OpenAPI Specification version

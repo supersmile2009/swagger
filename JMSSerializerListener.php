@@ -86,7 +86,7 @@ class JMSSerializerListener implements EventSubscriberInterface
         if ($object instanceof SpecificationExtensionSupportInterface) {
             foreach ($object->getCustomProperties() as $key => $value) {
                 if ($value !== null) {
-                    $visitor->addData("x-{$key}", $value->getData());
+                    $visitor->addData("x-{$key}", $value);
                 }
             }
         }

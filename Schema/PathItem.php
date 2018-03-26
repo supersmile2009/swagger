@@ -2,7 +2,7 @@
 
 namespace Draw\Swagger\Schema;
 
-use Draw\Swagger\Schema\Traits\ArrayAccess;
+use Draw\Swagger\Schema\Traits\ClassPropertiesArrayAccess;
 use Draw\Swagger\Schema\Traits\SpecificationExtension;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -13,8 +13,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class PathItem implements SpecificationExtensionSupportInterface, \ArrayAccess
 {
-    use ArrayAccess;
     use SpecificationExtension;
+    use ClassPropertiesArrayAccess;
 
     /**
      * @var string

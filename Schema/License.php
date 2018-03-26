@@ -2,7 +2,7 @@
 
 namespace Draw\Swagger\Schema;
 
-use Draw\Swagger\Schema\Traits\ArrayAccess;
+use Draw\Swagger\Schema\Traits\ClassPropertiesArrayAccess;
 use Draw\Swagger\Schema\Traits\SpecificationExtension;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
@@ -14,9 +14,10 @@ use JMS\Serializer\Annotation as JMS;
  *
  * @author Martin Poirier Theoret <mpoiriert@gmail.com>
  */
-class License implements SpecificationExtensionSupportInterface
+class License implements SpecificationExtensionSupportInterface, \ArrayAccess
 {
     use SpecificationExtension;
+    use ClassPropertiesArrayAccess;
 
     /**
      * The license name used for the API.

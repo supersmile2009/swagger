@@ -3,6 +3,7 @@
 namespace Draw\Swagger\Schema;
 
 use Draw\Swagger\Schema\Any;
+use Draw\Swagger\Schema\Traits\ClassPropertiesArrayAccess;
 use Draw\Swagger\Schema\Traits\SpecificationExtension;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -10,9 +11,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @author Alexandr Zolotukhin <alex@alexandrz.com>
  */
-class Server implements SpecificationExtensionSupportInterface
+class Server implements SpecificationExtensionSupportInterface, \ArrayAccess
 {
     use SpecificationExtension;
+    use ClassPropertiesArrayAccess;
 
     /**
      * Required. An URL to the target host. This URL supports Server Variables and MAY be relative,

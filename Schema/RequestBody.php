@@ -2,17 +2,21 @@
 
 namespace Draw\Swagger\Schema;
 
+use Draw\Swagger\Schema\Traits\ClassPropertiesArrayAccess;
+use Draw\Swagger\Schema\Traits\SpecificationExtension;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * @author Alexandr Zolotukhin <alex@alexandrz.com>
  *
  * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#requestBodyObject
  */
-class RequestBody
+class RequestBody implements SpecificationExtensionSupportInterface, \ArrayAccess
 {
+    use SpecificationExtension;
+    use ClassPropertiesArrayAccess;
+
     /**
      * A brief description of the request body. This could contain examples of use.
      * CommonMark syntax MAY be used for rich text representation.

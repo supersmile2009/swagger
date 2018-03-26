@@ -2,7 +2,7 @@
 
 namespace Draw\Swagger\Schema;
 
-use Draw\Swagger\Schema\Any;
+use Draw\Swagger\Schema\Traits\ClassPropertiesArrayAccess;
 use Draw\Swagger\Schema\Traits\SpecificationExtension;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
@@ -10,9 +10,10 @@ use JMS\Serializer\Annotation as JMS;
 /**
  * @author Alexandr Zolotukhin <alex@alexandrz.com>
  */
-class Link implements SpecificationExtensionSupportInterface
+class Link implements SpecificationExtensionSupportInterface, \ArrayAccess
 {
     use SpecificationExtension;
+    use ClassPropertiesArrayAccess;
 
     /**
      * A relative or absolute reference to an OAS operation.

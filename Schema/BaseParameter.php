@@ -2,6 +2,7 @@
 
 namespace Draw\Swagger\Schema;
 
+use Draw\Swagger\Schema\Traits\ClassPropertiesArrayAccess;
 use Draw\Swagger\Schema\Traits\SpecificationExtension;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -23,9 +24,10 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  *      }
  * )
  */
-abstract class BaseParameter implements SpecificationExtensionSupportInterface
+abstract class BaseParameter implements SpecificationExtensionSupportInterface, \ArrayAccess
 {
     use SpecificationExtension;
+    use ClassPropertiesArrayAccess;
 
     /**
      * The name of the parameter. Parameter names are case sensitive.

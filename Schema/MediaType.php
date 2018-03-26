@@ -2,6 +2,7 @@
 
 namespace Draw\Swagger\Schema;
 
+use Draw\Swagger\Schema\Traits\ClassPropertiesArrayAccess;
 use Draw\Swagger\Schema\Traits\SpecificationExtension;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -9,9 +10,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @author Alexandr Zolotukhin <alex@alexandrz.com>
  */
-class MediaType implements SpecificationExtensionSupportInterface
+class MediaType implements SpecificationExtensionSupportInterface, \ArrayAccess
 {
     use SpecificationExtension;
+    use ClassPropertiesArrayAccess;
 
     /**
      * The schema defining the type used for the request body.

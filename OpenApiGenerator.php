@@ -121,7 +121,7 @@ class OpenApiGenerator
         $realTarget = $target;
         $sortedExtractors = $this->getSortedExtractors();
         foreach ($sortedExtractors as $extractor) {
-            $realTarget = static::resolveReference($realTarget, $extractionContext);
+            $realTarget = static::resolveReference($realTarget, $extractionContext->getRootSchema());
             $beforeExtraction = $realTarget;
             if ($extractor->canExtract($source, $realTarget, $extractionContext)) {
                 $extractor->extract($source, $realTarget, $extractionContext);
@@ -157,18 +157,18 @@ class OpenApiGenerator
      * extraction.
      *
      * @param $target
-     * @param ExtractionContextInterface $extractionContext
+     * @param OpenApi $rootSchema
      *
      * @return mixed
      *
      * @throws ExtractionImpossibleException
      */
-    public static function resolveReference($target, ExtractionContextInterface $extractionContext)
+    public static function resolveReference($target, OpenApi $rootSchema)
     {
         if ($target instanceof Reference) {
             $parts = explode('/', ltrim($target->ref, '#/'));
 
-            $currentItem = $extractionContext->getRootSchema();
+            $currentItem = $rootSchema;
             foreach ($parts as $part) {
                 if (is_array($currentItem)) {
                     $currentItem = $currentItem[$part];

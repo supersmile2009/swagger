@@ -2,6 +2,7 @@
 
 namespace Draw\Swagger\Schema;
 
+use Draw\Swagger\Schema\Traits\ClassPropertiesArrayAccess;
 use Draw\Swagger\Schema\Traits\SpecificationExtension;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -12,9 +13,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * TODO: Create child classes with relevant properties and discriminator map
  */
-class SecurityScheme implements SpecificationExtensionSupportInterface
+class SecurityScheme implements SpecificationExtensionSupportInterface, \ArrayAccess
 {
     use SpecificationExtension;
+    use ClassPropertiesArrayAccess;
 
     /**
      * @var string
