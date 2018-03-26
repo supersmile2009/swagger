@@ -15,13 +15,13 @@ interface SpecificationExtensionSupportInterface
     /**
      * @return Any[]
      */
-    public function getCustomProperties();
+    public function getCustomProperties(): array;
 
     /**
      * @param string $key
      * @param mixed $value
      */
-    public function setCustomProperty($key, $value);
+    public function setCustomProperty(string $key, $value);
 
     /**
      * @param string $key

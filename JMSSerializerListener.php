@@ -2,6 +2,7 @@
 
 namespace Draw\Swagger;
 
+use Draw\Swagger\Schema\BaseParameter;
 use Draw\Swagger\Schema\SpecificationExtensionSupportInterface;
 use JMS\Serializer\EventDispatcher\Events;
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
@@ -11,6 +12,9 @@ use JMS\Serializer\EventDispatcher\PreSerializeEvent;
 
 class JMSSerializerListener implements EventSubscriberInterface
 {
+    /**
+     * @return array
+     */
     public static function getSubscribedEvents()
     {
         return [
@@ -23,35 +27,45 @@ class JMSSerializerListener implements EventSubscriberInterface
     /**
      * @param PreSerializeEvent $event
      */
-    public function onPreSerialize(PreSerializeEvent $event)
+    public function onPreSerialize(PreSerializeEvent $event): void
     {
         $object = $event->getObject();
-        if (is_object($object) &&
-            is_subclass_of($object, 'Draw\Swagger\Schema\BaseParameter') &&
-            get_class($object) !== $event->getType()['name']
+        if (\is_object($object) &&
+            is_subclass_of($object, BaseParameter::class) &&
+            \get_class($object) !== $event->getType()['name']
         ) {
-            $event->setType(get_class($event->getObject()));
+            $event->setType(\get_class($event->getObject()));
         }
     }
 
-    public function onPreDeserialize(PreDeserializeEvent $event)
+    /**
+     * @param PreDeserializeEvent $event
+     *
+     * @throws \ReflectionException
+     */
+    public function onPreDeserialize(PreDeserializeEvent $event): void
     {
         $data = $event->getData();
 
         $type = $event->getType();
 
+        $reflectionClass = new \ReflectionClass($type['name']);
+        if (!$reflectionClass->implementsInterface(SpecificationExtensionSupportInterface::class)) {
+            return;
+        }
+
         if (!class_exists($type['name'])) {
             return;
         }
 
-        if (!is_array($data)) {
+        if (!\is_array($data)) {
             return;
         }
 
-        $vendorData = [];
+        $customProperties = [];
 
         foreach ($data as $key => $value) {
-            if (!is_string($key)) {
+            if (!\is_string($key)) {
                 continue;
             }
 
@@ -60,23 +74,18 @@ class JMSSerializerListener implements EventSubscriberInterface
             }
 
             unset($data[$key]);
-            $vendorData[$key] = $value;
+            $customProperties[$key] = $value;
         }
 
-        if (!$vendorData) {
+        if (!$customProperties) {
             return;
         }
 
-        $reflectionClass = new \ReflectionClass($type['name']);
-        if (!$reflectionClass->implementsInterface('Draw\Swagger\Schema\SpecificationExtensionSupportInterface')) {
-            return;
-        }
-
-        $data['vendor'] = $vendorData;
+        $data['customProperties'] = $customProperties;
         $event->setData($data);
     }
 
-    public function onPostSerialize(ObjectEvent $event)
+    public function onPostSerialize(ObjectEvent $event): void
     {
         $object = $event->getObject();
 
@@ -86,7 +95,7 @@ class JMSSerializerListener implements EventSubscriberInterface
         if ($object instanceof SpecificationExtensionSupportInterface) {
             foreach ($object->getCustomProperties() as $key => $value) {
                 if ($value !== null) {
-                    $visitor->addData("x-{$key}", $value);
+                    $visitor->setData("x-{$key}", $value);
                 }
             }
         }

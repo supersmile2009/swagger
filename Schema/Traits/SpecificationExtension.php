@@ -17,17 +17,24 @@ trait SpecificationExtension
      */
     private $customProperties = [];
 
-    public function setCustomProperties(array $customProperties)
+    /**
+     * @param Any[]|mixed[] $customProperties
+     */
+    public function setCustomProperties(array $customProperties): void
     {
         $this->customProperties = $customProperties;
     }
 
-    public function getCustomProperties()
+    public function getCustomProperties(): array
     {
         return $this->customProperties;
     }
 
-    public function setCustomProperty($key, $value)
+    /**
+     * @param string $key
+     * @param mixed $value
+     */
+    public function setCustomProperty(string $key, $value): void
     {
         $this->customProperties[$key] = $value;
     }
@@ -39,10 +46,10 @@ trait SpecificationExtension
      */
     public function getCustomProperty($key)
     {
-        return isset($this->customProperties[$key]) ? $this->customProperties[$key] : null;
+        return $this->customProperties[$key] ?? null;
     }
 
-    public function removeCustomProperty($key)
+    public function removeCustomProperty($key): void
     {
         unset($this->customProperties[$key]);
     }

@@ -14,7 +14,7 @@ trait ClassPropertiesArrayAccess
      *
      * @return bool          Returns TRUE on success or FALSE on failure.
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return isset($this->$offset);
     }

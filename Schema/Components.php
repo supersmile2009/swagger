@@ -148,7 +148,7 @@ class Components implements SpecificationExtensionSupportInterface, \ArrayAccess
      */
     public function getSchemaReference($name)
     {
-        return '#/components/schemas/' . $this->sanitizeReferenceName($name);
+        return '#/components/schemas/'.$this->sanitizeReferenceName($name);
     }
 
     /**

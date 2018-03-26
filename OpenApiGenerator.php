@@ -60,7 +60,7 @@ class OpenApiGenerator
         $this->registerExtractor(new OpenApiJsonSchemaExtractor($this->serializer), -1, 'swagger');
     }
 
-    public function registerExtractor(ExtractorInterface $extractorInterface, $position = 0, $section = 'default')
+    public function registerExtractor(ExtractorInterface $extractorInterface, $position = 0, $section = 'default'): void
     {
         $this->extractors[$section][$position][] = $extractorInterface;
     }
@@ -71,7 +71,7 @@ class OpenApiGenerator
      * @throws \InvalidArgumentException
      * @throws \Doctrine\Common\Annotations\AnnotationException
      */
-    public function validate(OpenApi $schema)
+    public function validate(OpenApi $schema): void
     {
         $validator = Validation::createValidatorBuilder()
             ->enableAnnotationMapping(new AnnotationReader())
@@ -92,7 +92,7 @@ class OpenApiGenerator
      * @throws \InvalidArgumentException
      * @throws \Doctrine\Common\Annotations\AnnotationException
      */
-    public function dump(OpenApi $schema)
+    public function dump(OpenApi $schema): string
     {
         $this->validate($schema);
         return $this->serializer->serialize($schema, 'json');
@@ -137,7 +137,7 @@ class OpenApiGenerator
     /**
      * @return ExtractorInterface[]
      */
-    private function getSortedExtractors()
+    private function getSortedExtractors(): array
     {
         if (null === $this->sortedExtractors) {
             $this->sortedExtractors = [];
@@ -170,9 +170,9 @@ class OpenApiGenerator
 
             $currentItem = $rootSchema;
             foreach ($parts as $part) {
-                if (is_array($currentItem)) {
+                if (\is_array($currentItem)) {
                     $currentItem = $currentItem[$part];
-                } elseif (property_exists(get_class($currentItem), $part)) {
+                } elseif (property_exists(\get_class($currentItem), $part)) {
                     $currentItem = $currentItem->{$part};
                 } else {
                     throw new ExtractionImpossibleException("Reference {$target->ref} not found.");

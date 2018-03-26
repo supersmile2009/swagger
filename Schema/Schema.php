@@ -314,7 +314,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      */
     public $externalDocs;
 
-
     /**
      * A free-form property to include a an example of an instance for this schema.
      *

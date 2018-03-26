@@ -3,9 +3,9 @@
 namespace Draw\Swagger\Schema;
 
 use Draw\Swagger\Schema\Traits\ArrayAccess;
+use JMS\Serializer\Annotation as JMS;
 use JMS\Serializer\JsonDeserializationVisitor;
 use JMS\Serializer\JsonSerializationVisitor;
-use JMS\Serializer\Annotation as JMS;
 
 /**
  * @author Martin Poirier Theoret <mpoiriert@gmail.com>
@@ -15,7 +15,10 @@ class SecurityRequirement implements \ArrayAccess
 {
     use ArrayAccess;
 
-    private $data;
+    /**
+     * @var string[]
+     */
+    private $data = [];
 
     /**
      * Each name must correspond to a security scheme which is declared in the Security Definitions.
@@ -42,8 +45,11 @@ class SecurityRequirement implements \ArrayAccess
 
     /**
      * @JMS\HandlerCallback("json", direction="serialization")
+     * @param JsonSerializationVisitor $visitor
+     *
+     * @return string[]
      */
-    public function serialize(JsonSerializationVisitor $visitor)
+    public function serialize(JsonSerializationVisitor $visitor): array
     {
         return $this->data;
     }

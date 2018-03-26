@@ -163,7 +163,7 @@ class PathItem implements SpecificationExtensionSupportInterface, \ArrayAccess
     {
         static $methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'];
         $operations = [];
-        foreach($methods as $method) {
+        foreach ($methods as $method) {
             if ($this->{$method} instanceof Operation) {
                 $operations[$method] = $this->{$method};
             }

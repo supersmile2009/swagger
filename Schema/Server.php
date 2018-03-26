@@ -2,7 +2,6 @@
 
 namespace Draw\Swagger\Schema;
 
-use Draw\Swagger\Schema\Any;
 use Draw\Swagger\Schema\Traits\ClassPropertiesArrayAccess;
 use Draw\Swagger\Schema\Traits\SpecificationExtension;
 use JMS\Serializer\Annotation as JMS;
