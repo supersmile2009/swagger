@@ -28,7 +28,7 @@ class SwaggerTagExtractor implements ExtractorInterface
      * @param ExtractionContextInterface $extractionContext
      * @return boolean
      */
-    public function canExtract($source, $target, ExtractionContextInterface $extractionContext)
+    public function canExtract($source, $target, ExtractionContextInterface $extractionContext): bool
     {
         if (!$source instanceof \ReflectionMethod) {
             return false;
@@ -53,6 +53,10 @@ class SwaggerTagExtractor implements ExtractorInterface
      */
     public function extract($method, &$operation, ExtractionContextInterface $extractionContext)
     {
+        if (!$this->canExtract($method, $operation, $extractionContext)) {
+            return;
+        }
+
         foreach($this->annotationReader->getMethodAnnotations($method) as $annotation) {
             if($annotation instanceof Tag) {
                 $operation->tags[] = $annotation->name;

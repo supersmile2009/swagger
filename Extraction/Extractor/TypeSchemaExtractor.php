@@ -3,7 +3,6 @@
 namespace Draw\Swagger\Extraction\Extractor;
 
 use Draw\Swagger\Extraction\ExtractionContextInterface;
-use Draw\Swagger\Extraction\ExtractionImpossibleException;
 use Draw\Swagger\Extraction\ExtractorInterface;
 use Draw\Swagger\Schema\Reference;
 use Draw\Swagger\Schema\Schema;
@@ -31,7 +30,7 @@ class TypeSchemaExtractor implements ExtractorInterface
      *
      * @return boolean
      */
-    public function canExtract($source, $target, ExtractionContextInterface $extractionContext)
+    public function canExtract($source, $target, ExtractionContextInterface $extractionContext): bool
     {
         if (!$target instanceof Schema) {
             return false;
@@ -54,13 +53,13 @@ class TypeSchemaExtractor implements ExtractorInterface
      * @param Schema|Reference $target
      * @param ExtractionContextInterface $extractionContext
      *
-     * @throws ExtractionImpossibleException
      * @throws \ReflectionException
+     * @throws \Draw\Swagger\Extraction\ExtractionImpossibleException
      */
     public function extract($source, &$target, ExtractionContextInterface $extractionContext)
     {
         if (!$this->canExtract($source, $target, $extractionContext)) {
-            throw new ExtractionImpossibleException();
+            return;
         }
 
         $primitiveType = static::getPrimitiveType($source);
@@ -139,7 +138,7 @@ class TypeSchemaExtractor implements ExtractorInterface
         return md5(http_build_query($context));
     }
 
-    private function hashExists($modelName, $hash)
+    private function hashExists($modelName, $hash): bool
     {
         if (!array_key_exists($modelName, $this->definitionHashes)) {
             $this->definitionHashes[$modelName] = [];

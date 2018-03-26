@@ -31,7 +31,7 @@ class JMSSerializerListener implements EventSubscriberInterface
     {
         $object = $event->getObject();
         if (\is_object($object) &&
-            is_subclass_of($object, BaseParameter::class) &&
+            \is_subclass_of($object, BaseParameter::class) &&
             \get_class($object) !== $event->getType()['name']
         ) {
             $event->setType(\get_class($event->getObject()));
@@ -54,7 +54,7 @@ class JMSSerializerListener implements EventSubscriberInterface
             return;
         }
 
-        if (!class_exists($type['name'])) {
+        if (!\class_exists($type['name'])) {
             return;
         }
 

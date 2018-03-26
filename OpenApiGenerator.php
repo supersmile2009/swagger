@@ -123,10 +123,8 @@ class OpenApiGenerator
         foreach ($sortedExtractors as $extractor) {
             $realTarget = static::resolveReference($realTarget, $extractionContext->getRootSchema());
             $beforeExtraction = $realTarget;
-            if ($extractor->canExtract($source, $realTarget, $extractionContext)) {
                 $extractor->extract($source, $realTarget, $extractionContext);
-            }
-            if (\get_class($beforeExtraction) !== \get_class($realTarget)) {
+            if (\get_class($beforeExtraction) !== get_class($realTarget)) {
                 $target = $realTarget;
             }
         }
@@ -142,8 +140,8 @@ class OpenApiGenerator
         if (null === $this->sortedExtractors) {
             $this->sortedExtractors = [];
             foreach ($this->extractors as $section => $extractors) {
-                ksort($extractors);
-                $this->sortedExtractors = call_user_func_array('array_merge', $extractors);
+                \ksort($extractors);
+                $this->sortedExtractors = \array_merge(...$extractors);
             }
         }
 
@@ -166,13 +164,13 @@ class OpenApiGenerator
     public static function resolveReference($target, OpenApi $rootSchema)
     {
         if ($target instanceof Reference) {
-            $parts = explode('/', ltrim($target->ref, '#/'));
+            $parts = \explode('/', \ltrim($target->ref, '#/'));
 
             $currentItem = $rootSchema;
             foreach ($parts as $part) {
                 if (\is_array($currentItem)) {
                     $currentItem = $currentItem[$part];
-                } elseif (property_exists(\get_class($currentItem), $part)) {
+                } elseif (\property_exists(\get_class($currentItem), $part)) {
                     $currentItem = $currentItem->{$part};
                 } else {
                     throw new ExtractionImpossibleException("Reference {$target->ref} not found.");

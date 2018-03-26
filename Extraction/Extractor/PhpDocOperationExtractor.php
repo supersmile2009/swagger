@@ -6,7 +6,6 @@ use Draw\Swagger\Extraction\ExtendedReflectionClass;
 use Draw\Swagger\Extraction\ExtractionContextInterface;
 use Draw\Swagger\Extraction\ExtractionImpossibleException;
 use Draw\Swagger\Extraction\ExtractorInterface;
-use Draw\Swagger\Schema\BodyParameter;
 use Draw\Swagger\Schema\MediaType;
 use Draw\Swagger\Schema\Operation;
 use Draw\Swagger\Schema\QueryParameter;
@@ -66,14 +65,14 @@ class PhpDocOperationExtractor implements ExtractorInterface
      * @param Operation $operation
      * @param ExtractionContextInterface $extractionContext
      *
-     * @throws ExtractionImpossibleException
      * @return void
      * @throws \ReflectionException
+     * @throws ExtractionImpossibleException
      */
     public function extract($method, &$operation, ExtractionContextInterface $extractionContext)
     {
         if (!$this->canExtract($method, $operation, $extractionContext)) {
-            throw new ExtractionImpossibleException();
+            return;
         }
 
         $factory = DocBlockFactory::createInstance();
@@ -204,7 +203,7 @@ class PhpDocOperationExtractor implements ExtractorInterface
      *
      * @return boolean
      */
-    public function canExtract($source, $type, ExtractionContextInterface $extractionContext)
+    public function canExtract($source, $type, ExtractionContextInterface $extractionContext): bool
     {
         if (!$source instanceof ReflectionMethod) {
             return false;
@@ -221,8 +220,6 @@ class PhpDocOperationExtractor implements ExtractorInterface
      * @param string $type
      * @param Schema $target
      * @param ExtractionContextInterface $extractionContext
-     *
-     * @throws ExtractionImpossibleException
      */
     private function extractType($type, $target, $extractionContext)
     {

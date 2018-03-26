@@ -4,11 +4,9 @@ namespace Draw\Swagger\Extraction\Extractor;
 
 use Draw\Swagger\Extraction\ExtractionContext;
 use Draw\Swagger\Extraction\ExtractionContextInterface;
-use Draw\Swagger\Extraction\ExtractionImpossibleException;
 use Draw\Swagger\Extraction\ExtractorInterface;
 use Draw\Swagger\Schema\Reference;
 use Draw\Swagger\Schema\Schema;
-use Draw\Swagger\OpenApiGenerator;
 use JMS\Serializer\Exclusion\GroupsExclusionStrategy;
 use JMS\Serializer\Metadata\VirtualPropertyMetadata;
 use JMS\Serializer\Naming\PropertyNamingStrategyInterface;
@@ -16,7 +14,6 @@ use JMS\Serializer\SerializationContext;
 use Metadata\MetadataFactory;
 use Metadata\MetadataFactoryInterface;
 use Metadata\PropertyMetadata;
-use phpDocumentor\Reflection\DocBlock;
 use phpDocumentor\Reflection\DocBlockFactory;
 use ReflectionClass;
 
@@ -39,6 +36,10 @@ class JmsExtractor implements ExtractorInterface
 
     /**
      * Constructor, requires JMS Metadata factory
+     *
+     * @param MetadataFactoryInterface $factory
+     * @param PropertyNamingStrategyInterface $namingStrategy
+     * @param TypeSchemaExtractor $typeSchemaExtractor
      */
     public function __construct(
         MetadataFactoryInterface $factory,
@@ -58,7 +59,7 @@ class JmsExtractor implements ExtractorInterface
      * @param ExtractionContextInterface $extractionContext
      * @return boolean
      */
-    public function canExtract($source, $type, ExtractionContextInterface $extractionContext)
+    public function canExtract($source, $type, ExtractionContextInterface $extractionContext): bool
     {
         if (!$source instanceof ReflectionClass) {
             return false;
@@ -68,7 +69,7 @@ class JmsExtractor implements ExtractorInterface
             return false;
         }
 
-        return !is_null($this->factory->getMetadataForClass($source->getName()));
+        return null !== $this->factory->getMetadataForClass($source->getName());
     }
 
     /**
@@ -81,12 +82,12 @@ class JmsExtractor implements ExtractorInterface
      * @param Schema $schema
      * @param ExtractionContextInterface $extractionContext
      *
-     * @throws ExtractionImpossibleException
+     * @throws \Draw\Swagger\Extraction\ExtractionImpossibleException
      */
     public function extract($reflectionClass, &$schema, ExtractionContextInterface $extractionContext)
     {
         if (!$this->canExtract($reflectionClass, $schema, $extractionContext)) {
-            throw new ExtractionImpossibleException();
+            return;
         }
 
         $meta = $this->factory->getMetadataForClass($reflectionClass->getName());
@@ -183,6 +184,13 @@ class JmsExtractor implements ExtractorInterface
         }
     }
 
+    /**
+     * @param $type
+     * @param ExtractionContext $extractionContext
+     *
+     * @return Schema|Reference
+     * @throws \Draw\Swagger\Extraction\ExtractionImpossibleException
+     */
     private function extractTypeSchema($type, ExtractionContext $extractionContext)
     {
         $schema = new Schema();
@@ -200,7 +208,7 @@ class JmsExtractor implements ExtractorInterface
      */
     private function getNestedTypeInArray(PropertyMetadata $item)
     {
-        if (isset($item->type['name']) && in_array($item->type['name'], array('array', 'ArrayCollection'))) {
+        if (isset($item->type['name']) && \in_array($item->type['name'], array('array', 'ArrayCollection'))) {
             if (isset($item->type['params'][1]['name'])) {
                 // E.g. array<string, MyNamespaceMyObject>
                 // All assoc arrays in JS are JSONs, not arrays. stdClass corresponds to JSON.
@@ -219,7 +227,7 @@ class JmsExtractor implements ExtractorInterface
      * @param PropertyMetadata $item
      * @return string
      */
-    private function getDescription(PropertyMetadata $item)
+    private function getDescription(PropertyMetadata $item): string
     {
         $ref = new \ReflectionClass($item->class);
         $factory = DocBlockFactory::createInstance();
@@ -241,7 +249,7 @@ class JmsExtractor implements ExtractorInterface
      * @param $item
      * @return bool
      */
-    private function shouldSkipProperty($exclusionStrategies, $item)
+    private function shouldSkipProperty($exclusionStrategies, $item): bool
     {
         foreach ($exclusionStrategies as $strategy) {
             if (true === $strategy->shouldSkipProperty($item, SerializationContext::create())) {

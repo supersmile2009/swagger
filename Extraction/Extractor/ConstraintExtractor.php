@@ -3,12 +3,11 @@
 namespace Draw\Swagger\Extraction\Extractor;
 
 use Draw\Swagger\Extraction\ExtractionContextInterface;
-use Draw\Swagger\Extraction\ExtractionImpossibleException;
 use Draw\Swagger\Extraction\Extractor\Constraint\ConstraintExtractionContext;
 use Draw\Swagger\Extraction\Extractor\Constraint\ConstraintExtractorInterface;
 use Draw\Swagger\Schema\Schema;
-use Symfony\Component\Validator\Constraint;
 use ReflectionClass;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Mapping\Factory\MetadataFactoryInterface;
 
 abstract class ConstraintExtractor implements ConstraintExtractorInterface
@@ -38,8 +37,8 @@ abstract class ConstraintExtractor implements ConstraintExtractorInterface
             throw new \InvalidArgumentException(
                 sprintf(
                     'The constraint of type [%s] is not supported by [%s]',
-                    get_class($constraint),
-                    get_class($this)
+                    \get_class($constraint),
+                    \get_class($this)
                 )
             );
         }
@@ -53,7 +52,7 @@ abstract class ConstraintExtractor implements ConstraintExtractorInterface
      * @param ExtractionContextInterface $extractionContext
      * @return boolean
      */
-    public function canExtract($source, $type, ExtractionContextInterface $extractionContext)
+    public function canExtract($source, $type, ExtractionContextInterface $extractionContext): bool
     {
         if (!$type instanceof Schema) {
             return false;
@@ -94,7 +93,7 @@ abstract class ConstraintExtractor implements ConstraintExtractorInterface
 
                 $propertyConstraints = array();
                 foreach($groups as $group) {
-                    $propertyConstraints = array_merge(
+                    $propertyConstraints = \array_merge(
                         $propertyConstraints,
                         $propertyMetadata->findConstraints($group)
                     );
@@ -103,7 +102,7 @@ abstract class ConstraintExtractor implements ConstraintExtractorInterface
                 $finalPropertyConstraints  = array();
 
                 foreach ($propertyConstraints as $current) {
-                    if ( ! in_array($current, $finalPropertyConstraints)) {
+                    if (!\in_array($current, $finalPropertyConstraints, true)) {
                         $finalPropertyConstraints[] = $current;
                     }
                 }
@@ -113,11 +112,11 @@ abstract class ConstraintExtractor implements ConstraintExtractorInterface
                     array($this, 'supportConstraint')
                 );
 
-                $constraints[$propertyName] = array_merge($constraints[$propertyName], $finalPropertyConstraints);
+                $constraints[$propertyName] = \array_merge($constraints[$propertyName], $finalPropertyConstraints);
             }
         }
 
-        return array_filter($constraints);
+        return \array_filter($constraints);
     }
 
     /**
@@ -129,13 +128,11 @@ abstract class ConstraintExtractor implements ConstraintExtractorInterface
      * @param ReflectionClass $source
      * @param Schema $target
      * @param ExtractionContextInterface $extractionContext
-     *
-     * @throws ExtractionImpossibleException
      */
     public function extract($source, &$target, ExtractionContextInterface $extractionContext)
     {
         if (!$this->canExtract($source, $target, $extractionContext)) {
-            throw new ExtractionImpossibleException('Trying to extract unsupported data.');
+            return;
         }
 
         $constraintExtractionContext = new ConstraintExtractionContext();

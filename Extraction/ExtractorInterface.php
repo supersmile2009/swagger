@@ -6,16 +6,18 @@ interface ExtractorInterface
 {
     /**
      * Return if the extractor can extract the requested data or not.
+     * This method should be called first before calling ExtractorInterface::extract()
      *
      * @param mixed $source
      * @param mixed $target
      * @param ExtractionContextInterface $extractionContext
      * @return boolean
      */
-    public function canExtract($source, $target, ExtractionContextInterface $extractionContext);
+    public function canExtract($source, $target, ExtractionContextInterface $extractionContext): bool;
 
     /**
      * Extract the requested data.
+     * This method shouldn't be called without calling ExtractorInterface::canExtract() first.
      *
      * The system is a incrementing extraction system. A extractor can be call before you and you must complete the
      * extraction.

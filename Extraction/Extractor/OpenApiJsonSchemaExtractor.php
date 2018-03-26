@@ -36,13 +36,12 @@ class OpenApiJsonSchemaExtractor implements ExtractorInterface
      * @param OpenApi $openApi
      * @param ExtractionContextInterface $extractionContext
      *
-     * @throws ExtractionImpossibleException
      * @return void
      */
     public function extract($source, &$openApi, ExtractionContextInterface $extractionContext)
     {
         if (!$this->canExtract($source, $openApi, $extractionContext)) {
-            throw new ExtractionImpossibleException();
+            return;
         }
 
         $result = $this->serializer->deserialize($source, \get_class($openApi), 'json');
@@ -61,13 +60,13 @@ class OpenApiJsonSchemaExtractor implements ExtractorInterface
      *
      * @return boolean
      */
-    public function canExtract($source, $type, ExtractionContextInterface $extractionContext)
+    public function canExtract($source, $type, ExtractionContextInterface $extractionContext): bool
     {
-        if (!is_string($source)) {
+        if (!\is_string($source)) {
             return false;
         }
 
-        if (!is_object($type)) {
+        if (!\is_object($type)) {
             return false;
         }
 
@@ -75,16 +74,16 @@ class OpenApiJsonSchemaExtractor implements ExtractorInterface
             return false;
         }
 
-        $schema = json_decode($source, true);
-        if (json_last_error() != JSON_ERROR_NONE) {
+        $schema = \json_decode($source, true);
+        if (\json_last_error() != JSON_ERROR_NONE) {
             return false;
         }
 
-        if (!array_key_exists('openapi', $schema)) {
+        if (!\array_key_exists('openapi', $schema)) {
             return false;
         }
 
-        if (strpos($schema['openapi'], '3.') !== 0) {
+        if (\strpos($schema['openapi'], '3.') !== 0) {
             return false;
         }
 
