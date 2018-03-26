@@ -97,35 +97,28 @@ class TypeSchemaExtractor implements ExtractorInterface
 
             $definitionName = str_replace('\\', '.', $name);
 
-            // If definition for Entity is already registered, merge serializer groups
-            if ($rootSchema->components->hasSchema($definitionName)) {
-                $lastContext = $rootSchema->components->schemas[$definitionName]->getCustomProperty('serializerGroups')
-                    ? $rootSchema->components->schemas[$definitionName]->getCustomProperty('serializerGroups')->getData()
-                    : []
-                ;
-                if (isset($context['serializer-groups'])) {
-                    $context['serializer-groups'] = array_unique(array_merge($lastContext, $context['serializer-groups']));
-                } else {
-                    $context['serializer-groups'] = $lastContext;
-                }
-
+            if ($rootSchema->components->hasSchema($definitionName) === false) {
+                $rootSchema->components->addSchema($definitionName, $modelSchema = new Schema());
+                $modelSchema->type = 'object';
             }
+            $modelSchema = $rootSchema->components->schemas[$definitionName];
+
+            // Merge serializer groups
+            $lastContext = $modelSchema->getCustomProperty('serializerGroups') ?: [];
+            if (isset($context['serializer-groups'])) {
+                $context['serializer-groups'] = array_unique(array_merge($lastContext, $context['serializer-groups']));
+            } else {
+                $context['serializer-groups'] = $lastContext;
+            }
+            $modelSchema->setCustomProperty('serializerGroups', $context['serializer-groups']);
 
             $hash = $this->getHash($context['serializer-groups']);
 
-            // If definition has not been added and processed yet OR if serializer groups hash changed (new groups added)
-            if (!$rootSchema->components->hasSchema($definitionName) || $this->hashExists($name, $hash) === false) {
-                $rootSchema->components->addSchema($definitionName, $refSchema = new Schema());
-                $refSchema->type = 'object';
-                if (isset($context['serializer-groups'])) {
-                    $refSchema->setCustomProperty(
-                        'serializerGroups',
-                        $context['serializer-groups']
-                    );
-                }
+            // If serializer groups hash changed (new groups added)
+            if ($this->hashExists($name, $hash) === false) {
                 $extractionContext->getSwagger()->extract(
                     $reflectionClass,
-                    $refSchema,
+                    $modelSchema,
                     $extractionContext
                 );
             }

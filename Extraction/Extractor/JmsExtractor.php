@@ -6,12 +6,14 @@ use Draw\Swagger\Extraction\ExtractionContext;
 use Draw\Swagger\Extraction\ExtractionContextInterface;
 use Draw\Swagger\Extraction\ExtractionImpossibleException;
 use Draw\Swagger\Extraction\ExtractorInterface;
+use Draw\Swagger\Schema\Reference;
 use Draw\Swagger\Schema\Schema;
 use Draw\Swagger\OpenApiGenerator;
 use JMS\Serializer\Exclusion\GroupsExclusionStrategy;
 use JMS\Serializer\Metadata\VirtualPropertyMetadata;
 use JMS\Serializer\Naming\PropertyNamingStrategyInterface;
 use JMS\Serializer\SerializationContext;
+use Metadata\MetadataFactory;
 use Metadata\MetadataFactoryInterface;
 use Metadata\PropertyMetadata;
 use phpDocumentor\Reflection\DocBlock;
@@ -21,7 +23,7 @@ use ReflectionClass;
 class JmsExtractor implements ExtractorInterface
 {
     /**
-     * @var MetadataFactoryInterface
+     * @var MetadataFactory
      */
     private $factory;
 
@@ -89,7 +91,7 @@ class JmsExtractor implements ExtractorInterface
 
         $meta = $this->factory->getMetadataForClass($reflectionClass->getName());
 
-        $exclusionStrategies = array();
+        $exclusionStrategies = [];
 
 
         $subContext = $extractionContext->createSubContext();
@@ -132,14 +134,19 @@ class JmsExtractor implements ExtractorInterface
                 $propertySchema = $this->extractTypeSchema($item->type['name'], $subContext);
             }
 
-            $propertySchema = OpenApiGenerator::resolveReference($propertySchema, $extractionContext);
-            $propertySchema->setCustomProperty('serializerGroups', $item->groups);
+            $name = $this->namingStrategy->translateName($item);
+            $targetSchema = $propertySchema;
+            if ($propertySchema instanceof Reference) {
+                $schema->properties[$name] = $targetSchema = new Schema();
+                $schema->properties[$name]->allOf = [$propertySchema];
+            } else {
+                $schema->properties[$name] = $targetSchema;
+            }
+            $targetSchema->setCustomProperty('serializerGroups', $item->groups);
 
             if ($item->readOnly) {
-                $propertySchema->readOnly = true;
+                $targetSchema->readOnly = true;
             }
-
-            $propertySchema->setCustomProperty('serializerGroups', $item->groups);
 
             /** @var \ReflectionProperty $reflectionProperty */
             $reflectionProperty = $item->reflection;
@@ -152,21 +159,17 @@ class JmsExtractor implements ExtractorInterface
                     $docBlock = $factory->create($reflectionProperty->getDocComment());
                     $deprecatedTags = $docBlock->getTagsByName('deprecated');
                     if (empty($deprecatedTags) === false) {
-                        $propertySchema->deprecated = true;
+                        $targetSchema->deprecated = true;
                         /** @var \phpDocumentor\Reflection\DocBlock\Tags\Deprecated $deprecatedTag */
                         foreach ($deprecatedTags as $deprecatedTag) {
-                            $propertySchema->setCustomProperty(
+                            $targetSchema->setCustomProperty(
                                 'deprecationDescription',
-                                $propertySchema->getCustomProperty('deprecationDescription').$deprecatedTag->getDescription()
+                                $targetSchema->getCustomProperty('deprecationDescription').$deprecatedTag->getDescription()
                             );
                         }
                     }
                 }
             }
-
-
-            $name = $this->namingStrategy->translateName($item);
-            $schema->properties[$name] = $propertySchema;
 
             // We can't get description for disctriminator field, it doesn't exist as normal property
             if ($property !== $meta->discriminatorFieldName) {
