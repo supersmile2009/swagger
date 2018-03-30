@@ -31,9 +31,8 @@ class MediaType implements SpecificationExtensionSupportInterface, \ArrayAccess
      *
      * @var Any
      *
-     * @Assert\Valid()
-     *
      * @JMS\Type("Draw\Swagger\Schema\Any")
+     * @JMS\SkipWhenEmpty()
      */
     public $example;
 
@@ -80,4 +79,12 @@ class MediaType implements SpecificationExtensionSupportInterface, \ArrayAccess
      * @JMS\Type("string")
      */
     public $ref;
+
+    /**
+     * @JMS\PreSerialize()
+     */
+    public function preSerialize()
+    {
+        $this->example = Any::convert($this->example);
+    }
 }

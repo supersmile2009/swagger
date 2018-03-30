@@ -44,9 +44,9 @@ trait SpecificationExtension
      *
      * @return mixed|null
      */
-    public function getCustomProperty($key)
+    public function getCustomProperty($key, $default = null)
     {
-        return $this->customProperties[$key] ?? null;
+        return $this->customProperties[$key] ?? $default;
     }
 
     public function removeCustomProperty($key): void

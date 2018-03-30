@@ -209,8 +209,9 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      * @var Schema[]|Reference[]
      *
      * @JMS\Exclude(if="object.ref !== null")
+     * @JMS\SkipWhenEmpty()
      */
-    public $properties;
+    public $properties = [];
 
     /**
      * @var Schema

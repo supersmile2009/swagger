@@ -56,7 +56,9 @@ class OpenApi implements SpecificationExtensionSupportInterface, \ArrayAccess
      *
      * @Assert\NotBlank()
      * @Assert\Valid()
+     *
      * @JMS\Type("array<string,Draw\Swagger\Schema\PathItem>")
+     * @JMS\SkipWhenEmpty()
      */
     public $paths;
 

@@ -103,22 +103,18 @@ class PhpDocOperationExtractor implements ExtractorInterface
                     $types = [(string)$type];
                 }
 
-                $i = 1;
-                $count = count($types);
+                $responseGenerated = false;
                 foreach ($types as $actualType) {
                     $actualType = $this->convertType($method, $actualType);
                     // We want to exclude specific types, leave only one and generate response for it
-                    // But if all response types are excluded, we want to generate generic 200 response
-                    if ($this->shouldSkipType($actualType)) {
-                        if ($i < $count) {
-                            $i++;
-                            continue;
-                        } else {
-                            $this->generateResponse($operation, $extractionContext, $statusCode);
-                            continue;
-                        }
+                    if ($this->shouldSkipType($actualType) === false) {
+                        $responseGenerated = true;
+                        $this->generateResponse($operation, $extractionContext, $statusCode, $returnTag->getDescription(), $actualType);
                     }
-                    $this->generateResponse($operation, $extractionContext, $statusCode, $returnTag->getDescription(), $actualType);
+                    // But if all response types were skipped excluded, we want to generate generic 200 response
+                    if ($responseGenerated === false) {
+                        $this->generateResponse($operation, $extractionContext, $statusCode, $returnTag->getDescription());
+                    }
                 }
             }
         }
@@ -220,6 +216,8 @@ class PhpDocOperationExtractor implements ExtractorInterface
      * @param string $type
      * @param Schema $target
      * @param ExtractionContextInterface $extractionContext
+     *
+     * @throws ExtractionImpossibleException
      */
     private function extractType($type, $target, $extractionContext)
     {
@@ -259,9 +257,9 @@ class PhpDocOperationExtractor implements ExtractorInterface
     {
         $isArray = false;
         $type = trim($type);
-        if (strpos($type, '[]') !== false) {
+        if (\substr($type, -2) === '[]') {
             $isArray = true;
-            $type = trim($type, '[]');
+            $type = \rtrim($type, '[]');
         }
 
         if (null !== $primitiveType = TypeSchemaExtractor::convertType($type)) {
@@ -273,6 +271,7 @@ class PhpDocOperationExtractor implements ExtractorInterface
         if ($isArray === true) {
             $type .= '[]';
         }
+
         return $type;
     }
 
@@ -284,7 +283,7 @@ class PhpDocOperationExtractor implements ExtractorInterface
      */
     private function shouldSkipType($type)
     {
-        return in_array($type, $this->excludedReturnTypes, true);
+        return \in_array($type, $this->excludedReturnTypes, true);
     }
 
     /**
@@ -295,11 +294,14 @@ class PhpDocOperationExtractor implements ExtractorInterface
      * @param int $statusCode
      * @param string $description
      * @param string $type
+     *
+     * @throws ExtractionImpossibleException
      */
     private function generateResponse($operation, $extractionContext, $statusCode = 200, $description = 'Generic 200 response', $type = 'test')
     {
+        $responseType = $this->classExists($type) ? 'application/json' : 'text/html';
         $response = new Response();
-        $response->content['application/json'] = $mediaType = new MediaType();
+        $response->content[$responseType] = $mediaType = new MediaType();
         $mediaType->schema = new Schema();
         $response->description = $description;
         $operation->responses[$statusCode] = $response;
@@ -308,6 +310,17 @@ class PhpDocOperationExtractor implements ExtractorInterface
         $subContext->setParameter('direction', 'out');
 
         $extractionContext->getSwagger()->extract($type, $mediaType->schema, $subContext);
+    }
+
+    private function classExists($type)
+    {
+        $type = trim($type);
+        if (\substr($type, -2) === '[]') {
+            $type = \rtrim($type, '[]');
+        }
+
+        return class_exists($type);
+
     }
 
     /**

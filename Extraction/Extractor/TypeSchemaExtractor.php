@@ -161,17 +161,14 @@ class TypeSchemaExtractor implements ExtractorInterface
 
         $primitiveType = [];
 
-        $typeOfArray = str_replace('[]', '', $type);
-        if ($typeOfArray != $type) {
-            if ($typeOfArray !== substr($type, 0, -2)) {
-                return null;
-            }
-
+        if (\substr($type, -2) === '[]') {
+            $type = \rtrim($type, '[]');
             $primitiveType['type'] = 'array';
-            $primitiveType['subType'] = $typeOfArray;
-            return $primitiveType;
-        }
+            $primitiveType['subType'] = $type;
 
+            return $primitiveType;
+
+        }
         if (null !== $primitiveType = static::convertType($type)) {
             return $primitiveType;
         }
@@ -220,5 +217,10 @@ class TypeSchemaExtractor implements ExtractorInterface
             return $this->definitionAliases[$className];
         }
         return $className;
+    }
+
+    public function getClassNameFor($alias)
+    {
+        return \array_search($alias, $this->definitionAliases, true);
     }
 }
