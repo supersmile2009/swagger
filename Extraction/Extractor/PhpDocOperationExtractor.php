@@ -78,11 +78,11 @@ class PhpDocOperationExtractor implements ExtractorInterface
         $factory = DocBlockFactory::createInstance();
         $docBlock = $factory->create($method->getDocComment());
 
-        if (!$operation->summary) {
+        if ($operation->summary === null) {
             $operation->summary = $docBlock->getSummary();
         }
 
-        if ($operation->description) {
+        if ($operation->description === null) {
             $operation->description = $docBlock->getDescription();
         }
 

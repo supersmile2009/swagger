@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Annotation
- * @Target({"METHOD"})
+ * @Target({"CLASS", "METHOD"})
  *
  * @author Martin Poirier Theoret <mpoiriert@gmail.com>
  */
