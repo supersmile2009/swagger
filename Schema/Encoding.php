@@ -43,7 +43,6 @@ class Encoding implements SpecificationExtensionSupportInterface, \ArrayAccess
      * @Assert\Valid()
      *
      * @JMS\Type("array<string, Draw\Swagger\Schema\Schema>")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $headers;
 

@@ -68,19 +68,6 @@ class MediaType implements SpecificationExtensionSupportInterface, \ArrayAccess
     public $encoding = [];
 
     /**
-     * @deprecated
-     * A map between a property name and its encoding information.
-     * The key, being the property name, MUST exist in the schema as a property.
-     * The encoding object SHALL only apply to requestBody objects
-     * when the media type is 'multipart' or 'application/x-www-form-urlencoded'.
-     *
-     * @var string
-     *
-     * @JMS\Type("string")
-     */
-    public $ref;
-
-    /**
      * @JMS\PreSerialize()
      */
     public function preSerialize()

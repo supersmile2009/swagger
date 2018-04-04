@@ -19,7 +19,6 @@ class Example implements SpecificationExtensionSupportInterface, \ArrayAccess
      * @var string
      *
      * @JMS\Type("string")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $summary;
 

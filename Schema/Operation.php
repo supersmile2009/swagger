@@ -138,28 +138,6 @@ class Operation implements SpecificationExtensionSupportInterface, \ArrayAccess
     public $deprecated = false;
 
     /**
-     * @deprecated
-     * Deprecation description
-     *
-     * @var boolean
-     *
-     * @JMS\Type("string")
-     * @JMS\Exclude(if="object.deprecated === false")
-     */
-    public $deprecationDescription;
-
-    /**
-     * Deprecation description
-     *
-     * @var boolean
-     *
-     * @JMS\Type("string")
-     * @JMS\SerializedName("x-DeprecationDescription")
-     * @JMS\Exclude(if="object.deprecated === false")
-     */
-    public $xDeprecationDescription;
-
-    /**
      * A declaration of which security schemes are applied for this operation.
      * The list of values describes alternative security schemes that can be used
      * (that is, there is a logical OR between the security requirements).

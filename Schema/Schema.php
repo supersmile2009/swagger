@@ -20,7 +20,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      * @var string
      *
      * @JMS\Type("string")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $title;
 
@@ -28,7 +27,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      * @var number
      *
      * @JMS\Type("double")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $multipleOf;
 
@@ -36,7 +34,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      * @var number
      *
      * @JMS\Type("double")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $maximum;
 
@@ -44,7 +41,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      * @var boolean
      *
      * @JMS\Type("boolean")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $exclusiveMaximum;
 
@@ -52,7 +48,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      * @var number
      *
      * @JMS\Type("double")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $minimum;
 
@@ -61,7 +56,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      *
      * @JMS\Type("boolean")
      * @JMS\SerializedName("exclusiveMinimum")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $exclusiveMinimum;
 
@@ -70,7 +64,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      *
      * @JMS\Type("integer")
      * @JMS\SerializedName("maxLength")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $maxLength;
 
@@ -79,7 +72,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      *
      * @JMS\Type("integer")
      * @JMS\SerializedName("minLength")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $minLength;
 
@@ -87,7 +79,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      * @var string
      *
      * @JMS\Type("string")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $pattern;
 
@@ -96,7 +87,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      *
      * @JMS\Type("integer")
      * @JMS\SerializedName("maxItems")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $maxItems;
 
@@ -105,7 +95,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      *
      * @JMS\Type("integer")
      * @JMS\SerializedName("minItems")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $minItems;
 
@@ -114,7 +103,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      *
      * @JMS\Type("boolean")
      * @JMS\SerializedName("uniqueItems")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $uniqueItems;
 
@@ -123,7 +111,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      *
      * @JMS\Type("integer")
      * @JMS\SerializedName("maxProperties")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $maxProperties;
 
@@ -132,7 +119,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      *
      * @JMS\Type("integer")
      * @JMS\SerializedName("minProperties")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $minProperties;
 
@@ -141,7 +127,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      *
      * @JMS\Type("array<string>")
      * @JMS\SkipWhenEmpty()
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $required = [];
 
@@ -149,7 +134,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      * @var Any[]
      *
      * @JMS\Type("array<Draw\Swagger\Schema\Any>")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $enum;
 
@@ -157,7 +141,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      * @var string
      *
      * @JMS\Type("string")
-     * @JMS\Exclude(if="object.ref !== null")
      *
      * @Assert\NotBlank()
      */
@@ -167,7 +150,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      * @var Schema[]|Reference[]
      *
      * @JMS\SerializedName("allOf")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $allOf;
 
@@ -176,7 +158,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      *
      * @JMS\Type("array<Draw\Swagger\Schema\Schema>")
      * @JMS\SerializedName("oneOf")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $oneOf;
 
@@ -185,7 +166,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      *
      * @JMS\Type("array<Draw\Swagger\Schema\Schema>")
      * @JMS\SerializedName("anyOf")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $anyOf;
 
@@ -194,21 +174,17 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      *
      * @JMS\Type("array<Draw\Swagger\Schema\Schema>")
      * @JMS\SerializedName("not")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $not;
 
     /**
      * @var Schema|Reference
-     *
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $items;
 
     /**
      * @var Schema[]|Reference[]
      *
-     * @JMS\Exclude(if="object.ref !== null")
      * @JMS\SkipWhenEmpty()
      */
     public $properties = [];
@@ -218,7 +194,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      *
      * @JMS\Type("Draw\Swagger\Schema\Schema")
      * @JMS\SerializedName("additionalProperties")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $additionalProperties;
 
@@ -226,7 +201,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      * @var string
      *
      * @JMS\Type("string")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $description;
 
@@ -234,7 +208,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      * @var string
      *
      * @JMS\Type("string")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $format;
 
@@ -242,7 +215,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      * @var Any
      *
      * @JMS\Type("Draw\Swagger\Schema\Any")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $default;
 
@@ -251,7 +223,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      *
      * @JMS\Type("boolean")
      * @JMS\SerializedName("nullable")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $nullable = false;
 
@@ -266,7 +237,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      * )
      *
      * @JMS\Type("Draw\Swagger\Schema\Discriminator")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $discriminator;
 
@@ -280,7 +250,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      *
      * @JMS\Type("boolean")
      * @JMS\SerializedName("readOnly")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $readOnly;
 
@@ -288,7 +257,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      * @var boolean
      *
      * @JMS\Type("boolean")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $writeOnly = false;
 
@@ -300,7 +268,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      * @var Xml
      *
      * @JMS\Type("Draw\Swagger\Schema\Xml")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $xml;
 
@@ -311,7 +278,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      *
      * @JMS\Type("Draw\Swagger\Schema\ExternalDocumentation")
      * @JMS\SerializedName("externalDocs")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $externalDocs;
 
@@ -320,7 +286,6 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      *
      * @var Any
      * @JMS\Type("Draw\Swagger\Schema\Any")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $example;
 
@@ -330,63 +295,8 @@ class Schema implements SpecificationExtensionSupportInterface, \ArrayAccess
      * @var boolean
      *
      * @JMS\Type("boolean")
-     * @JMS\Exclude(if="object.ref !== null")
      */
     public $deprecated = false;
-
-    /**
-     * @deprecated
-     * @var string
-     *
-     * @JMS\Type("string")
-     * @JMS\SerializedName("$ref")
-     */
-    public $ref;
-
-    /**
-     * @deprecated
-     * Serializer groups extracted from annotations
-     *
-     * @var array
-     *
-     * @JMS\Type("array<string>")
-     * @JMS\Exclude(if="object.ref !== null")
-     */
-    public $serializerGroups;
-
-    /**
-     * @deprecated
-     * Parent class alias. Base class alias is stored here for child classes that use discriminator map.
-     *
-     * @var string
-     *
-     * @JMS\Type("string")
-     * @JMS\Exclude(if="object.ref !== null")
-     */
-    public $parentAlias;
-
-    /**
-     * @deprecated
-     * Description of deprecation
-     *
-     * @var boolean
-     *
-     * @JMS\Type("string")
-     * @JMS\Exclude(if="object.ref !== null || object.deprecated === false")
-     */
-    public $deprecationDescription;
-
-    /**
-     * @deprecated
-     * Description of deprecation
-     *
-     * @var boolean
-     *
-     * @JMS\Type("string")
-     * @JMS\SerializedName("x-deprecationDescription")
-     * @JMS\Exclude(if="object.ref !== null || object.deprecated !== true")
-     */
-    public $xDeprecationDescription;
 
     /**
      * @JMS\PreSerialize()
