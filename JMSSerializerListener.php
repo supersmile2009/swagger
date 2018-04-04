@@ -40,8 +40,6 @@ class JMSSerializerListener implements EventSubscriberInterface
 
     /**
      * @param PreDeserializeEvent $event
-     *
-     * @throws \ReflectionException
      */
     public function onPreDeserialize(PreDeserializeEvent $event): void
     {
@@ -49,12 +47,7 @@ class JMSSerializerListener implements EventSubscriberInterface
 
         $type = $event->getType();
 
-        if (!\class_exists($type['name'])) {
-            return;
-        }
-
-        $reflectionClass = new \ReflectionClass($type['name']);
-        if (!$reflectionClass->implementsInterface(SpecificationExtensionSupportInterface::class)) {
+        if (\is_subclass_of($type['name'], SpecificationExtensionSupportInterface::class, true)) {
             return;
         }
 
