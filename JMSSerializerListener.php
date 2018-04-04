@@ -49,12 +49,12 @@ class JMSSerializerListener implements EventSubscriberInterface
 
         $type = $event->getType();
 
-        $reflectionClass = new \ReflectionClass($type['name']);
-        if (!$reflectionClass->implementsInterface(SpecificationExtensionSupportInterface::class)) {
+        if (!\class_exists($type['name'])) {
             return;
         }
 
-        if (!\class_exists($type['name'])) {
+        $reflectionClass = new \ReflectionClass($type['name']);
+        if (!$reflectionClass->implementsInterface(SpecificationExtensionSupportInterface::class)) {
             return;
         }
 
